@@ -4,6 +4,9 @@ namespace BattleshipClient.Game.Structure
 {
     class Board
     {
+        public int FullSideLength { get; }
+        public int SideLength { get; }
+
         public BoardPiece[,] Pieces { get; }
         public List<Player> Players { get; }
 
@@ -19,6 +22,8 @@ namespace BattleshipClient.Game.Structure
             }
 
             Players = new List<Player>();
+            SideLength = sideLength;
+            FullSideLength = sideLength * pieceSideLength;
         }
     }
 }
