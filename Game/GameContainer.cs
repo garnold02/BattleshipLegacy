@@ -3,6 +3,7 @@ using BattleshipClient.Engine.Rendering;
 using BattleshipClient.Game.Structure;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -43,12 +44,13 @@ namespace BattleshipClient.Game
         #region Initializators
         private void InitializeWindow()
         {
-            window = new GameWindow(400, 400)
+            window = new GameWindow(800, 800)
             {
                 Title = "Torpedó"
             };
             window.UpdateFrame += Update;
             window.RenderFrame += Render;
+            window.Resize += OnResized;
         }
         private void InitializeGL()
         {
@@ -61,8 +63,11 @@ namespace BattleshipClient.Game
         private void InitializeGeneral()
         {
             Assets.LoadAll();
-            MainCamera = new Camera(60, 0.1f, 100f);
-            ObjManager.Add(new GameObjects.BoardRenderer());
+
+            ObjManager.Add(new GameObjects.BoardRenderer(GameBoard));
+            MainCamera = new Camera(40, 0.1f, 100f);
+            MainCamera.Transform.localPosition = new Vector3(-10, 20, 10);
+            MainCamera.Transform.Rotate(55, 45, 0);
         }
         #endregion
         #region FrameEvents
@@ -77,6 +82,10 @@ namespace BattleshipClient.Game
             window.SwapBuffers();
             GL.ClearColor(0, 0, 0, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        }
+        private void OnResized(object sender, EventArgs e)
+        {
+            GL.Viewport(0, 0, window.Width, window.Height);
         }
         #endregion
         #region Other
