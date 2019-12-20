@@ -14,13 +14,15 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>out\bind\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,14 +31,21 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>out\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
+      <HintPath>packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,7 +64,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="ConnectWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -63,12 +72,36 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="ConnectWindow.xaml.cs">
+      <DependentUpon>ConnectWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\Root.cs" />
+    <Compile Include="Engine\Net\NetCommunicator.cs" />
+    <Compile Include="Engine\Rendering\Camera.cs" />
+    <Compile Include="Engine\Rendering\Material.cs" />
+    <Compile Include="Engine\Rendering\Mesh.cs" />
+    <Compile Include="Engine\Rendering\MeshRenderer.cs" />
+    <Compile Include="Engine\Rendering\Shader.cs" />
+    <Compile Include="Engine\Rendering\Texture.cs" />
+    <Compile Include="Engine\Rendering\Vertex.cs" />
+    <Compile Include="Engine\Transform.cs" />
+    <Compile Include="Game\Assets.cs" />
+    <Compile Include="Game\CommandExecutor.cs" />
+    <Compile Include="Game\GameContainer.cs" />
+    <Compile Include="Game\GameObjects\BoardRenderer.cs" />
+    <Compile Include="Game\GameObjects\CursorRenderer.cs" />
+    <Compile Include="Game\GameObjects\GameObject.cs" />
+    <Compile Include="Game\GameObjects\ShipRenderer.cs" />
+    <Compile Include="Game\ObjectManager.cs" />
+    <Compile Include="Engine\Rendering\Renderer.cs" />
+    <Compile Include="Game\Structure\Board.cs" />
+    <Compile Include="Game\Structure\Cell.cs" />
+    <Compile Include="Game\Structure\BoardPiece.cs" />
+    <Compile Include="Game\Structure\Player.cs" />
+    <Compile Include="Game\Structure\Ship.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -86,6 +119,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -94,5 +129,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="packages\AssimpNet.4.1.0\build\AssimpNet.targets" Condition="Exists('packages\AssimpNet.4.1.0\build\AssimpNet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\AssimpNet.4.1.0\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\AssimpNet.4.1.0\build\AssimpNet.targets'))" />
+  </Target>
 </Project>
