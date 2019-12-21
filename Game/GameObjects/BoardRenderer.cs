@@ -8,15 +8,13 @@ namespace BattleshipClient.Game.GameObjects
 {
     class BoardRenderer : GameObject
     {
-        public Board BoardReference;
-
         private MeshRenderer oceanPlaneRenderer;
         private MeshRenderer smallGridRenderer;
         private MeshRenderer largeGridRenderer;
 
-        public BoardRenderer(Board boardReference)
+        public BoardRenderer(Board board) : base(board)
         {
-            BoardReference = boardReference;
+
         }
         public override void OnAdded()
         {
@@ -31,7 +29,7 @@ namespace BattleshipClient.Game.GameObjects
             };
             oceanPlaneRenderer.Transform = new Transform()
             {
-                localScale = Vector3.One * BoardReference.FullSideLength
+                localScale = Vector3.One * Board.FullSideLength
             };
             smallGridRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("f_lit"))
             {
@@ -40,13 +38,13 @@ namespace BattleshipClient.Game.GameObjects
                     Opaque = false,
                     Color = new Color4(1f, 1f, 1f, 0.02f),
                     Texture = Assets.Get<Texture>("grid"),
-                    Tiling = new Vector2(BoardReference.FullSideLength, BoardReference.FullSideLength)
+                    Tiling = new Vector2(Board.FullSideLength, Board.FullSideLength)
                 }
             };
             smallGridRenderer.Transform = new Transform()
             {
                 localPosition = new Vector3(0, 0.01f, 0),
-                localScale = Vector3.One * BoardReference.FullSideLength
+                localScale = Vector3.One * Board.FullSideLength
             };
             largeGridRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("f_lit"))
             {
@@ -55,13 +53,13 @@ namespace BattleshipClient.Game.GameObjects
                     Opaque = false,
                     Color = new Color4(1f, 1f, 1f, 0.02f),
                     Texture = Assets.Get<Texture>("largeGrid"),
-                    Tiling = new Vector2(BoardReference.SideLength, BoardReference.SideLength)
+                    Tiling = new Vector2(Board.SideLength, Board.SideLength)
                 }
             };
             largeGridRenderer.Transform = new Transform()
             {
                 localPosition = new Vector3(0, 0.02f, 0),
-                localScale = Vector3.One * BoardReference.FullSideLength
+                localScale = Vector3.One * Board.FullSideLength
             };
         }
         public override void OnRemoved()
