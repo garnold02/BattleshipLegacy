@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using BattleshipClient.Engine;
 
 namespace BattleshipClient
@@ -15,7 +16,7 @@ namespace BattleshipClient
 
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
-            Root.Start();
+            Root.Start(TbxName.Text);
             Close();
         }
     }

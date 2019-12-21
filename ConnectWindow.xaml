@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="Torpedó" Height="400" Width="400">
     <Grid>
-        <Button Name="BtnConnect" Content="Csatlakozás" Margin="20" Click="BtnConnect_Click"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+        <TextBox Name="TbxName" Grid.Row="0" Margin="10 10 10 5" Text="player" VerticalContentAlignment="Center" FontSize="22"/>
+        <Button Name="BtnConnect" Grid.Row="1" Content="Csatlakozás" Margin="10 5 10 10" Click="BtnConnect_Click"/>
     </Grid>
 </Window>

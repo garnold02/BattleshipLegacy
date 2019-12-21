@@ -4,7 +4,6 @@ using BattleshipClient.Game.Structure;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BattleshipClient.Game
@@ -13,7 +12,7 @@ namespace BattleshipClient.Game
     {
         #region Properties
         public float AspectRatio => window.Width / (float)window.Height;
-        public bool IsInGame { get; private set; }
+        public bool IsInGame { get; set; }
         public Camera MainCamera { get; set; }
         #endregion
         #region Components
@@ -30,15 +29,13 @@ namespace BattleshipClient.Game
             NetCom = new NetCommunicator("127.0.0.1", 5555);
             CommandExe = new CommandExecutor(this);
             ObjManager = new ObjectManager();
-            GameBoard = new Board(6, 10);
-
-            Task.Run(InitiateHandshake);
+            GameBoard = new Board(this, 6, 10);
         }
-        public void Start()
+        public void Start(string playerName)
         {
             InitializeWindow();
             InitializeGL();
-            InitializeGeneral();
+            InitializeGeneral(playerName);
             window.Run(30);
         }
         #region Initializators
@@ -60,9 +57,10 @@ namespace BattleshipClient.Game
             GL.CullFace(CullFaceMode.Back);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
-        private void InitializeGeneral()
+        private void InitializeGeneral(string playerName)
         {
             Assets.LoadAll();
+            Task.Run(() => InitiateHandshake(playerName));
 
             ObjManager.Add(new GameObjects.BoardRenderer(GameBoard));
             MainCamera = new Camera(40, 0.1f, 100f);
@@ -89,13 +87,23 @@ namespace BattleshipClient.Game
         }
         #endregion
         #region Other
-        private async void InitiateHandshake()
+        public async void InitiateHandshake(string playerName)
         {
+            Log("Initiating handshake...");
             Task clientConnectedWaitTask = NetCom.IsConnectedTCS.Task;
             if (await Task.WhenAny(clientConnectedWaitTask, Task.Delay(8000)) == clientConnectedWaitTask)
             {
-                NetCom.SendRequest("JRQ {0}", "player");
+                NetCom.SendRequest("JRQ {0}", playerName);
+                Log("Handshake successful.");
             }
+            else
+            {
+                Log("Handshake timed out.");
+            }
+        }
+        private void Log(string message, params object[] parameters)
+        {
+            Console.WriteLine("[GCNT] {0}", string.Format(message, parameters));
         }
         #endregion
     }

@@ -92,11 +92,13 @@
     <Compile Include="Game\CommandExecutor.cs" />
     <Compile Include="Game\GameContainer.cs" />
     <Compile Include="Game\GameObjects\BoardRenderer.cs" />
+    <Compile Include="Game\GameObjects\Cursor.cs" />
     <Compile Include="Game\GameObjects\CursorRenderer.cs" />
     <Compile Include="Game\GameObjects\GameObject.cs" />
-    <Compile Include="Game\GameObjects\ShipRenderer.cs" />
+    <Compile Include="Game\GameObjects\PlayerRenderer.cs" />
     <Compile Include="Game\ObjectManager.cs" />
     <Compile Include="Engine\Rendering\Renderer.cs" />
+    <Compile Include="Game\ShipRenderer.cs" />
     <Compile Include="Game\Structure\Board.cs" />
     <Compile Include="Game\Structure\Cell.cs" />
     <Compile Include="Game\Structure\BoardPiece.cs" />
