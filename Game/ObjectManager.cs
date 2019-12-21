@@ -48,6 +48,7 @@ namespace BattleshipClient.Game
         }
         public void Render()
         {
+            gameObjectList.Sort((g1, g2) => { return g1.Depth - g2.Depth; });
             foreach (GameObject gameObject in gameObjectList)
             {
                 gameObject.Render();

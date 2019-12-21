@@ -7,9 +7,9 @@ namespace BattleshipClient.Game.GameObjects
     {
         public Player Player { get; }
 
-        private List<ShipRenderer> shipRenderers;
+        private readonly List<ShipRenderer> shipRenderers;
 
-        public PlayerRenderer(Board board, Player player) : base(board)
+        public PlayerRenderer(GameContainer container, Player player) : base(container)
         {
             Player = player;
             shipRenderers = new List<ShipRenderer>();
@@ -36,8 +36,10 @@ namespace BattleshipClient.Game.GameObjects
 
         public void CreateShipRenderer(Ship ship)
         {
-            ShipRenderer shipRenderer = new ShipRenderer(Board);
+            ShipRenderer shipRenderer = new ShipRenderer(Container.Board);
             shipRenderer.SetProperties(ship);
+
+            shipRenderers.Add(shipRenderer);
         }
     }
 }

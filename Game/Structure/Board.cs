@@ -9,11 +9,15 @@ namespace BattleshipClient.Game.Structure
         public GameContainer Container { get; }
         public int FullSideLength { get; }
         public int SideLength { get; }
+        public int PieceLength { get; }
 
         public BoardPiece[,] Pieces { get; }
         public List<Player> Players { get; }
+        public Player LocalPlayer { get; private set; }
 
-        public Board(GameContainer gameContainer, int sideLength, int pieceSideLength)
+        private readonly string localPlayerName;
+
+        public Board(GameContainer gameContainer, int sideLength, int pieceSideLength, string localPlayerName)
         {
             Container = gameContainer;
             Pieces = new BoardPiece[sideLength, sideLength];
@@ -28,6 +32,9 @@ namespace BattleshipClient.Game.Structure
             Players = new List<Player>();
             SideLength = sideLength;
             FullSideLength = sideLength * pieceSideLength;
+            PieceLength = pieceSideLength;
+
+            this.localPlayerName = localPlayerName;
         }
         public Player GetPlayer(string name)
         {
@@ -38,9 +45,14 @@ namespace BattleshipClient.Game.Structure
             foreach (string playerName in playerNames)
             {
                 Player player = new Player(this, playerName);
-                PlayerRenderer playerRenderer = new PlayerRenderer(this, player);
-                player.Renderer = playerRenderer;
+                Players.Add(player);
+                if (playerName == localPlayerName)
+                {
+                    LocalPlayer = player;
+                }
 
+                PlayerRenderer playerRenderer = new PlayerRenderer(Container, player);
+                player.Renderer = playerRenderer;
                 Container.ObjManager.Add(playerRenderer);
             }
         }

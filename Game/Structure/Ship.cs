@@ -17,7 +17,7 @@
             Board = owner.Board;
             PositionX = positionX;
             PositionY = positionY;
-            IsVertical = IsVertical;
+            IsVertical = isVertical;
 
             Cells = new Cell[length];
             for (int i = 0; i < length; i++)

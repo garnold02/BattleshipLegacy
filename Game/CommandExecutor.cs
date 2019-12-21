@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BattleshipClient.Game.Structure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,7 @@ namespace BattleshipClient.Game
         }
         private void HandleCommand(string command, string[] parameters)
         {
+            Log("Received: [{0} {1}]", command, string.Join(" ", parameters));
             switch (command)
             {
                 default:
@@ -44,16 +46,19 @@ namespace BattleshipClient.Game
                     //TODO: Join denied
                     break;
                 case "PLY":
-                    Container.GameBoard.FillPlayerList(parameters);
+                    Container.Board.FillPlayerList(parameters);
                     break;
                 case "LB":
-                    Container.GameBoard.GetPlayer(parameters[0]).BoardClaim = Container.GameBoard.Pieces[int.Parse(parameters[1]), int.Parse(parameters[2])];
+                    Container.Board.GetPlayer(parameters[0]).BoardClaim = Container.Board.Pieces[int.Parse(parameters[1]), int.Parse(parameters[2])];
                     break;
                 case "ADV":
-                    //TODO: Advance turn
+                    Container.TurnManager.Advance();
                     break;
                 case "SRQA":
-                    //TODO: Ship request accepted
+                    {
+                        Ship ship = new Ship(Container.Board.LocalPlayer, int.Parse(parameters[0]), int.Parse(parameters[1]), int.Parse(parameters[2]), bool.Parse(parameters[3]));
+                        Container.Board.LocalPlayer.AddShip(ship);
+                    }
                     break;
                 case "ARQA":
                     //TODO: Attack request accepted

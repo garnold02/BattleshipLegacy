@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BattleshipClient.Engine.Rendering
 {
-    class MeshRenderer
+    class MeshRenderer : Renderer
     {
         public Mesh Mesh { get; set; }
         public Material Material { get; set; } = Material.Default;
@@ -13,7 +13,6 @@ namespace BattleshipClient.Engine.Rendering
         private readonly Dictionary<string, int> uniformLocations;
 
         public int GlProgram { get; private set; }
-        public Transform Transform { get; set; } = Transform.Identity;
 
         public MeshRenderer(Mesh mesh, params Shader[] shaders)
         {
@@ -50,7 +49,7 @@ namespace BattleshipClient.Engine.Rendering
 
             attachedShaders.Clear();
         }
-        public void Render()
+        public override void Render()
         {
             if (!Material.Opaque)
             {

@@ -5,12 +5,13 @@ namespace BattleshipClient.Game.GameObjects
 {
     abstract class GameObject
     {
-        public Board Board { get; }
+        public GameContainer Container { get; }
         public Transform Transform { get; set; } = Transform.Identity;
+        public int Depth { get; protected set; } = 0;
 
-        public GameObject(Board board)
+        public GameObject(GameContainer container)
         {
-            Board = board;
+            Container = container;
         }
         public abstract void OnAdded();
         public abstract void OnRemoved();
