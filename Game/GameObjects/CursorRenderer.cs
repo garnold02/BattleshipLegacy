@@ -1,7 +1,13 @@
-﻿namespace BattleshipClient.Game.GameObjects
+﻿using BattleshipClient.Game.Structure;
+
+namespace BattleshipClient.Game.GameObjects
 {
     class CursorRenderer : GameObject
     {
+        public CursorRenderer(Board board) : base(board)
+        {
+
+        }
         public override void OnAdded()
         {
 
