@@ -35,10 +35,17 @@ namespace BattleshipClient.Engine.Net
         {
             if (IsConnected)
             {
-                string combined = string.Format(request, parameters);
-                byte[] packet = ToPacket(combined);
-                tcpStream.Write(packet, 0, packet.Length);
-                Log("Sent: [{0}]", combined);
+                try
+                {
+                    string combined = string.Format(request, parameters);
+                    byte[] packet = ToPacket(combined);
+                    tcpStream.Write(packet, 0, packet.Length);
+                    Log("Sent: [{0}]", combined);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to send request: {0}", e.Message);
+                }
             }
             else
             {

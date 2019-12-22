@@ -1,6 +1,7 @@
 ﻿using BattleshipClient.Game;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 
 namespace BattleshipClient.Engine.Rendering
@@ -70,7 +71,7 @@ namespace BattleshipClient.Engine.Rendering
             SetUniformMatrix4("translation", Transform.TranslationMatrix);
             SetUniformMatrix4("rotation", Transform.RotationMatrix);
             SetUniformMatrix4("scale", Transform.ScaleMatrix);
-            SetUniformMatrix4("projection", Root.GameContainer.MainCamera.Matrix);
+            SetUniformMatrix4("projection", Root.GameContainer.CameraCtrl.Camera.Matrix);
 
             //Material
             SetUniformVector4("matColor", new Vector4(Material.Color.R, Material.Color.G, Material.Color.B, Material.Color.A));
@@ -97,6 +98,10 @@ namespace BattleshipClient.Engine.Rendering
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             GL.DepthMask(true);
+        }
+        public override void Delete()
+        {
+            GL.DeleteProgram(GlProgram);
         }
 
         public void SetUniformFloat(string name, float value)

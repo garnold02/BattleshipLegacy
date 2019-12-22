@@ -1,20 +1,19 @@
 ﻿using BattleshipClient.Game.Structure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BattleshipClient.Game
+namespace BattleshipClient.Game.RegularObjects
 {
-    class CommandExecutor
+    class CommandExecutor : RegularObject
     {
-        private GameContainer Container { get; }
-        public CommandExecutor(GameContainer container)
+        public CommandExecutor(GameContainer container) : base(container)
         {
-            Container = container;
         }
-        public void HandleServerCommands()
+        public override void Update(float delta)
+        {
+            HandleServerCommands();
+        }
+        private void HandleServerCommands()
         {
             Queue<string> commands = Container.NetCom.FetchCommands();
 
@@ -49,7 +48,17 @@ namespace BattleshipClient.Game
                     Container.Board.FillPlayerList(parameters);
                     break;
                 case "LB":
-                    Container.Board.GetPlayer(parameters[0]).BoardClaim = Container.Board.Pieces[int.Parse(parameters[1]), int.Parse(parameters[2])];
+                    {
+                        Player player = Container.Board.GetPlayerByID(byte.Parse(parameters[0]));
+                        int x = int.Parse(parameters[1]);
+                        int y = int.Parse(parameters[2]);
+                        player.BoardClaim = Container.Board.Pieces[x, y];
+
+                        if (player == Container.Board.LocalPlayer)
+                        {
+                            Container.Board.Renderer.SetClaimPosition(x, y);
+                        }
+                    }
                     break;
                 case "ADV":
                     Container.TurnManager.Advance();
@@ -58,13 +67,38 @@ namespace BattleshipClient.Game
                     {
                         Ship ship = new Ship(Container.Board.LocalPlayer, int.Parse(parameters[0]), int.Parse(parameters[1]), int.Parse(parameters[2]), bool.Parse(parameters[3]));
                         Container.Board.LocalPlayer.AddShip(ship);
+
+                        Container.CursorCtrl.ShipLength++;
                     }
                     break;
                 case "ARQA":
-                    //TODO: Attack request accepted
+                    {
+                        Attack attack = new Attack(null, int.Parse(parameters[0]), int.Parse(parameters[1]), false);
+                        Container.Board.LocalPlayer.AddAttackIndicator(attack);
+                    }
                     break;
                 case "AB":
-                    //TODO: Attack broadcast
+                    {
+                        foreach (string chunk in parameters)
+                        {
+                            int x = chunk[0] - 33;
+                            int y = chunk[1] - 33;
+                            bool hit = (chunk[2] - 33) == 1;
+                            List<Player> owners = new List<Player>();
+                            for (int i = 3; i < chunk.Length; i++)
+                            {
+                                Player player = Container.Board.GetPlayerByID((byte)(chunk[i] - 33));
+                                owners.Add(player);
+                            }
+                            Attack attack = new Attack(owners, x, y, hit);
+                            Container.Board.Attacks.Add(attack);
+                        }
+                    }
+                    break;
+                case "SHS":
+                    {
+
+                    }
                     break;
             }
         }

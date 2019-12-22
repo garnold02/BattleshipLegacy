@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BattleshipClient.Engine;
 using OpenTK;
 using OpenTK.Input;
 
@@ -33,19 +34,19 @@ namespace Battleship.Engine
 
         public static bool IsKeyDown(Key key)
         {
-            return currentKeyboardState[key];
+            return currentKeyboardState[key] && Root.GameContainer.IsFocused;
         }
         public static bool IsKeyPressed(Key key)
         {
-            return currentKeyboardState[key] && (currentKeyboardState[key] != previousKeyboardState[key]);
+            return currentKeyboardState[key] && (currentKeyboardState[key] != previousKeyboardState[key]) && Root.GameContainer.IsFocused;
         }
         public static bool IsMouseButtonDown(MouseButton button)
         {
-            return currentMouseState[button];
+            return currentMouseState[button] && Root.GameContainer.IsFocused;
         }
         public static bool IsMouseButtonPressed(MouseButton button)
         {
-            return currentMouseState[button] && (currentMouseState[button] != previousMouseState[button]);
+            return currentMouseState[button] && (currentMouseState[button] != previousMouseState[button]) && Root.GameContainer.IsFocused;
         }
     }
 }

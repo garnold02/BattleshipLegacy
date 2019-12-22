@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BattleshipClient.Game
+namespace BattleshipClient.Game.RegularObjects
 {
-    class ObjectManager
+    class ObjectManager : RegularObject
     {
-        private List<GameObject> gameObjectList;
-        private List<GameObject> gameObjectAddList;
-        private List<GameObject> gameObjectRemoveList;
-        public ObjectManager()
+        private readonly List<GameObject> gameObjectList;
+        private readonly List<GameObject> gameObjectAddList;
+        private readonly List<GameObject> gameObjectRemoveList;
+        public ObjectManager(GameContainer container) : base(container)
         {
             gameObjectList = new List<GameObject>();
             gameObjectAddList = new List<GameObject>();
@@ -26,11 +26,11 @@ namespace BattleshipClient.Game
         {
             gameObjectRemoveList.Add(gameObject);
         }
-        public void Update()
+        public override void Update(float delta)
         {
             foreach (GameObject gameObject in gameObjectList)
             {
-                gameObject.Update();
+                gameObject.Update(delta);
             }
 
             foreach (GameObject addedObject in gameObjectAddList)

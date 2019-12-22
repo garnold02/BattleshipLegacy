@@ -10,6 +10,7 @@ using System;
 using System.Threading.Tasks;
 using System.Drawing;
 using swf = System.Windows.Forms;
+using BattleshipClient.Game.RegularObjects;
 
 namespace BattleshipClient.Game
 {
@@ -27,24 +28,25 @@ namespace BattleshipClient.Game
                 return new Vector2(curPos.X, curPos.Y);
             }
         }
+        public bool IsFocused => window.Focused;
         public bool IsInGame { get; set; }
-        public Camera MainCamera { get; set; }
         #endregion
         #region Components
         public NetCommunicator NetCom { get; private set; }
         public CommandExecutor CommandExe { get; private set; }
         public ObjectManager ObjManager { get; private set; }
         public TurnManager TurnManager { get; private set; }
-        public Cursor Cursor { get; private set; }
+        public CursorController CursorCtrl { get; private set; }
+        public CameraController CameraCtrl { get; private set; }
         public Board Board { get; private set; }
         #endregion
         private GameWindow window;
 
-        public void Start(string playerName)
+        public void Start(string playerName, string hostname, int port)
         {
             InitializeWindow();
             InitializeGL();
-            InitializeGeneral(playerName);
+            InitializeGeneral(playerName, hostname, port);
             window.Run(30);
         }
         #region Initializators
@@ -66,24 +68,21 @@ namespace BattleshipClient.Game
             GL.CullFace(CullFaceMode.Back);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
-        private void InitializeGeneral(string playerName)
+        private void InitializeGeneral(string playerName, string hostname, int port)
         {
 
             Assets.LoadAll();
             Input.Initialize();
 
-            NetCom = new NetCommunicator("127.0.0.1", 5555);
+            NetCom = new NetCommunicator(hostname, port);
             CommandExe = new CommandExecutor(this);
-            ObjManager = new ObjectManager();
+            ObjManager = new ObjectManager(this);
             TurnManager = new TurnManager(this);
-            Cursor = new Cursor(this);
-            Board = new Board(this, 6, 10,playerName);
+            CursorCtrl = new CursorController(this);
+            CameraCtrl = new CameraController(this);
+            Board = new Board(this, 6, 10, playerName);
             AddGameObjects();
             Task.Run(() => InitiateHandshake(playerName));
-
-            MainCamera = new Camera(40, 0.1f, 100f);
-            MainCamera.Transform.localPosition = new Vector3(-10, 20, 10);
-            MainCamera.Transform.Rotate(55, 45, 0);
         }
         private void AddGameObjects()
         {
@@ -91,16 +90,34 @@ namespace BattleshipClient.Game
             BoardRenderer boardRenderer = new BoardRenderer(this);
             ObjManager.Add(cursorRenderer);
             ObjManager.Add(boardRenderer);
+
+            Board.Renderer = boardRenderer;
+            ParticleSystem s = new ParticleSystem(this)
+            {
+                Intensity = 16,
+                Lifetime = 3,
+                ConstantForce = new Vector3(0, 2, 0),
+                RandomProbabilities = new Vector3(0.6f, 0, 0.6f),
+                StartScale = Vector3.One * 0.8f,
+                EndScale = Vector3.Zero,
+                EndColor = new OpenTK.Graphics.Color4(1, 1, 1, 0f),
+                TextureName = "smoke"
+            };
+            s.Transform.localPosition = new Vector3(0, 0, 0);
+            ObjManager.Add(s);
         }
         #endregion
         #region FrameEvents
         private void Update(object sender, FrameEventArgs e)
         {
+            float delta = (float)e.Time;
+
             Input.Begin();
-            TurnManager.Update();
-            Cursor.Update();
-            ObjManager.Update();
-            CommandExe.HandleServerCommands();
+            TurnManager.Update(delta);
+            CursorCtrl.Update(delta);
+            ObjManager.Update(delta);
+            CommandExe.Update(delta);
+            CameraCtrl.Update(delta);
             Input.End();
         }
         private void Render(object sender, FrameEventArgs e)

@@ -58,10 +58,16 @@ namespace BattleshipClient.Game
             frontRenderer.Render();
             for (int i = 0; i < Length - 2; i++)
             {
-                middleRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : i+1), Position.Y, Position.Z + 0.5f + (IsVertical ? i+1 : 0));
+                middleRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : i + 1), Position.Y, Position.Z + 0.5f + (IsVertical ? i + 1 : 0));
                 middleRenderer.Render();
             }
             backRenderer.Render();
+        }
+        public override void Delete()
+        {
+            frontRenderer.Delete();
+            middleRenderer.Delete();
+            backRenderer.Delete();
         }
 
         private void AdjustTransforms()
@@ -71,7 +77,7 @@ namespace BattleshipClient.Game
 
             middleRenderer.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? -MathHelper.Pi / 2 : 0, 0);
 
-            backRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : Length-1), Position.Y, Position.Z + 0.5f + (IsVertical ? Length-1 : 0));
+            backRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : Length - 1), Position.Y, Position.Z + 0.5f + (IsVertical ? Length - 1 : 0));
             backRenderer.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? -MathHelper.Pi / 2 : 0, 0);
         }
     }

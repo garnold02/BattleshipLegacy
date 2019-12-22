@@ -13,7 +13,7 @@ namespace BattleshipClient.Engine.Rendering
         {
             Mesh mesh = new Mesh();
             a.AssimpContext context = new a.AssimpContext();
-            a.Scene scene = context.ImportFile(path, a.PostProcessSteps.Triangulate);
+            a.Scene scene = context.ImportFile(path, a.PostProcessSteps.Triangulate | a.PostProcessSteps.SortByPrimitiveType);
             a.Mesh assimpMesh = scene.Meshes[0];
 
             mesh.vertices = new Vertex[assimpMesh.Vertices.Count];

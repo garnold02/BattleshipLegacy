@@ -8,7 +8,7 @@ namespace BattleshipClient.Game.GameObjects
     {
         private MeshRenderer claimRenderer;
         private ShipRenderer shipRenderer;
-        private MeshRenderer stategyCursorRenderer;
+        private MeshRenderer strategyCursorRenderer;
         private Renderer currentRenderer;
 
         public CursorRenderer(GameContainer container) : base(container)
@@ -32,7 +32,7 @@ namespace BattleshipClient.Game.GameObjects
             currentRenderer?.Render();
         }
 
-        public override void Update()
+        public override void Update(float delta)
         {
             SetCurrentRenderer();
             SetRendererPosition();
@@ -55,7 +55,7 @@ namespace BattleshipClient.Game.GameObjects
             claimRenderer.Transform.localPosition.Y = 0.03f;
             claimRenderer.Transform.localScale = Vector3.One * Container.Board.PieceLength;
             shipRenderer = new ShipRenderer(Container.Board);
-            stategyCursorRenderer = new MeshRenderer(planeMesh, litShader)
+            strategyCursorRenderer = new MeshRenderer(planeMesh, litShader)
             {
                 Material = new Material()
                 {
@@ -64,7 +64,7 @@ namespace BattleshipClient.Game.GameObjects
                     Color = new Color4(1f, 1f, 1f, 0.5f)
                 }
             };
-            stategyCursorRenderer.Transform.localPosition.Y = 0.03f;
+            strategyCursorRenderer.Transform.localPosition.Y = 0.03f;
         }
         private void SetCurrentRenderer()
         {
@@ -77,7 +77,7 @@ namespace BattleshipClient.Game.GameObjects
                     currentRenderer = shipRenderer;
                     break;
                 case TurnPhase.Strategy:
-                    currentRenderer = stategyCursorRenderer;
+                    currentRenderer = strategyCursorRenderer;
                     break;
                 default:
                     currentRenderer = null;
@@ -91,14 +91,14 @@ namespace BattleshipClient.Game.GameObjects
                 case TurnPhase.LandClaiming:
                     currentRenderer.Transform.localPosition =
                         new Vector3(
-                            Container.Cursor.ClaimPosition.X * Container.Board.PieceLength - (Container.Board.FullSideLength / 2) + (Container.Board.PieceLength / 2),
-                            0.03f, Container.Cursor.ClaimPosition.Y * Container.Board.PieceLength - (Container.Board.FullSideLength / 2) + (Container.Board.PieceLength / 2));
+                            Container.CursorCtrl.ClaimPosition.X * Container.Board.PieceLength - (Container.Board.FullSideLength / 2) + (Container.Board.PieceLength / 2),
+                            0.04f, Container.CursorCtrl.ClaimPosition.Y * Container.Board.PieceLength - (Container.Board.FullSideLength / 2) + (Container.Board.PieceLength / 2));
                     break;
                 case TurnPhase.ShipPlacement:
-                    shipRenderer.SetProperties((int)Container.Cursor.Position.X, (int)Container.Cursor.Position.Y, Container.Cursor.ShipLength, Container.Cursor.IsShipVertical);
+                    shipRenderer.SetProperties((int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical);
                     break;
                 case TurnPhase.Strategy:
-                    currentRenderer.Transform.localPosition = new Vector3(Container.Cursor.Position.X + 0.5f, 0.03f, Container.Cursor.Position.Y + 0.5f);
+                    strategyCursorRenderer.Transform.localPosition = new Vector3(Container.CursorCtrl.Position.X - Container.Board.FullSideLength/2 + 0.5f, 0.04f, Container.CursorCtrl.Position.Y - Container.Board.FullSideLength / 2 + 0.5f);
                     break;
             }
         }

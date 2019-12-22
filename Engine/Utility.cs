@@ -1,4 +1,5 @@
 ﻿using BattleshipClient.Engine.Rendering;
+using BattleshipClient.Game;
 using OpenTK;
 using System;
 
@@ -33,6 +34,14 @@ namespace BattleshipClient.Engine
 
             Vector3 ray = (p2n - p1n).Normalized();
             return ray;
+        }
+        public static Vector2 GetMousePositionOnXZPlane(GameContainer container)
+        {
+            Vector2 clipSpaceMousePosition = new Vector2(container.MousePosition.X / container.Width - 0.5f, (container.Height - container.MousePosition.Y) / container.Height - 0.5f) * 2;
+            Vector3 ray = ClipToWorldRay(container.CameraCtrl.Camera, clipSpaceMousePosition);
+            Vector3 positionOnPlane = Raycast(container.CameraCtrl.Camera.Transform.Position, ray);
+
+            return new Vector2(positionOnPlane.X, positionOnPlane.Z);
         }
         public static Quaternion LookAt(Vector3 sourcePoint, Vector3 destPoint)
         {

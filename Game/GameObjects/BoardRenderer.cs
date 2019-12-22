@@ -1,7 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using BattleshipClient.Engine.Rendering;
-using BattleshipClient.Game.Structure;
 using BattleshipClient.Engine;
 
 namespace BattleshipClient.Game.GameObjects
@@ -11,6 +10,7 @@ namespace BattleshipClient.Game.GameObjects
         private MeshRenderer oceanPlaneRenderer;
         private MeshRenderer smallGridRenderer;
         private MeshRenderer largeGridRenderer;
+        private MeshRenderer claimRenderer;
 
         public BoardRenderer(GameContainer container) : base(container)
         {
@@ -61,20 +61,36 @@ namespace BattleshipClient.Game.GameObjects
                 localPosition = new Vector3(0, 0.02f, 0),
                 localScale = Vector3.One * Container.Board.FullSideLength
             };
+            claimRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("f_lit"))
+            {
+                Material = new Material()
+                {
+                    Opaque = false,
+                    Color = new Color4(0.1f, 1f, 0.3f, 0.25f),
+                    Texture = Assets.Get<Texture>("largeGrid"),
+                }
+            };
+            claimRenderer.Transform.localPosition = new Vector3(0, 1000000, 0);
+            claimRenderer.Transform.localScale = Vector3.One * Container.Board.PieceLength;
         }
         public override void OnRemoved()
         {
 
         }
-        public override void Update()
+        public override void Update(float delta)
         {
-
+            oceanPlaneRenderer.Transform.localPosition = new Vector3((int)Container.CameraCtrl.CurrentPosition.X, 0, (int)Container.CameraCtrl.CurrentPosition.Z);
         }
         public override void Render()
         {
             oceanPlaneRenderer.Render();
             smallGridRenderer.Render();
             largeGridRenderer.Render();
+            claimRenderer.Render();
+        }
+        public void SetClaimPosition(int x, int y)
+        {
+            claimRenderer.Transform.localPosition = new Vector3((x+0.5f)*Container.Board.PieceLength - Container.Board.FullSideLength / 2, 0.025f, (y+0.5f) * Container.Board.PieceLength - Container.Board.FullSideLength / 2);
         }
     }
 }

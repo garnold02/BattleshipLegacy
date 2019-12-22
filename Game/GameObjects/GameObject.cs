@@ -15,7 +15,7 @@ namespace BattleshipClient.Game.GameObjects
         }
         public abstract void OnAdded();
         public abstract void OnRemoved();
-        public abstract void Update();
+        public abstract void Update(float delta);
         public abstract void Render();
     }
 }

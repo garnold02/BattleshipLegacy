@@ -4,5 +4,6 @@
     {
         public Transform Transform { get; set; } = Transform.Identity;
         public abstract void Render();
+        public abstract void Delete();
     }
 }

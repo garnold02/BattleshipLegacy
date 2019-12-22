@@ -1,18 +1,17 @@
 ﻿using Battleship.Engine;
-using BattleshipClient.Game.GameObjects;
+using BattleshipClient.Game.Structure;
 using OpenTK.Input;
 
-namespace BattleshipClient.Game
+namespace BattleshipClient.Game.RegularObjects
 {
-    class TurnManager
+    class TurnManager : RegularObject
     {
-        public GameContainer Container { get; }
         public TurnPhase Phase { get; private set; } = TurnPhase.Neutral;
-        public TurnManager(GameContainer gameContainer)
+        public TurnManager(GameContainer container) : base(container)
         {
-            Container = gameContainer;
+
         }
-        public void Update()
+        public override void Update(float delta)
         {
             switch (Phase)
             {
@@ -38,18 +37,23 @@ namespace BattleshipClient.Game
             {
                 case TurnPhase.Neutral:
                     Phase = TurnPhase.LandClaiming;
+                    OnLandClaimingEntered();
                     break;
                 case TurnPhase.LandClaiming:
                     Phase = TurnPhase.ShipPlacement;
+                    OnShipPlacementEntered();
                     break;
                 case TurnPhase.ShipPlacement:
                     Phase = TurnPhase.Strategy;
+                    OnStrategyEntered();
                     break;
                 case TurnPhase.Strategy:
                     Phase = TurnPhase.Cinematics;
+                    OnCinematicsEntered();
                     break;
                 case TurnPhase.Cinematics:
                     Phase = TurnPhase.Strategy;
+                    OnStrategyEntered();
                     break;
             }
         }
@@ -58,27 +62,55 @@ namespace BattleshipClient.Game
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Container.NetCom.SendRequest("LRQ {0} {1}", (int)Container.Cursor.ClaimPosition.X, (int)Container.Cursor.ClaimPosition.Y);
+                Container.NetCom.SendRequest("LRQ {0} {1}", (int)Container.CursorCtrl.ClaimPosition.X, (int)Container.CursorCtrl.ClaimPosition.Y);
             }
         }
         private void ShipPlacementLogic()
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Container.NetCom.SendRequest("SRQ {0} {1} {2} {3}", (int)Container.Cursor.Position.X, (int)Container.Cursor.Position.Y, Container.Cursor.ShipLength, Container.Cursor.IsShipVertical.ToString().ToLower());
+                Container.NetCom.SendRequest("SRQ {0} {1} {2} {3}", (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical.ToString().ToLower());
             }
             if (Input.IsKeyPressed(Key.Space))
             {
-                Container.Cursor.IsShipVertical = !Container.Cursor.IsShipVertical;
+                Container.CursorCtrl.IsShipVertical = !Container.CursorCtrl.IsShipVertical;
             }
         }
         private void StrategyLogic()
         {
-
+            if (Input.IsMouseButtonPressed(MouseButton.Left))
+            {
+                Container.NetCom.SendRequest("ARQ {0} {1}", (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y);
+            }
         }
         private void CinematicsLogic()
         {
+            if (Input.IsKeyPressed(Key.Space))
+            {
+                Container.NetCom.SendRequest("CSF");
+                Container.Board.Attacks.Clear();
+            }
+        }
 
+        private void OnLandClaimingEntered()
+        {
+
+        }
+        private void OnShipPlacementEntered()
+        {
+
+        }
+        private void OnStrategyEntered()
+        {
+
+        }
+        private void OnCinematicsEntered()
+        {
+            foreach (Player player in Container.Board.Players)
+            {
+                player.ClearAttackIndicators();
+            }
+            Container.Board.CreateMissiles();
         }
     }
 }

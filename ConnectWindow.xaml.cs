@@ -16,7 +16,7 @@ namespace BattleshipClient
 
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
-            Root.Start(TbxName.Text);
+            Root.Start(TbxName.Text, TbxHostname.Text, TbxPort.Text);
             Close();
         }
     }
