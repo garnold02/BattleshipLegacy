@@ -1,5 +1,4 @@
-﻿using Battleship.Engine;
-using BattleshipClient.Engine;
+﻿using BattleshipClient.Engine;
 using BattleshipClient.Engine.Rendering;
 using OpenTK;
 using OpenTK.Input;

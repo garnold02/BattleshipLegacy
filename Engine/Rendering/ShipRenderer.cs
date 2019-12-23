@@ -1,9 +1,8 @@
-﻿using BattleshipClient.Engine;
-using BattleshipClient.Engine.Rendering;
+﻿using BattleshipClient.Game;
 using BattleshipClient.Game.Structure;
 using OpenTK;
 
-namespace BattleshipClient.Game
+namespace BattleshipClient.Engine.Rendering
 {
     class ShipRenderer : Renderer
     {

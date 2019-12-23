@@ -63,5 +63,10 @@ namespace BattleshipClient.Engine
             rotAxis = Vector3.Normalize(rotAxis);
             return Quaternion.FromAxisAngle(rotAxis, rotAngle);
         }
+        public static float Lerp(float a, float b, float t)
+        {
+            float distance = b - a;
+            return a + distance * t;
+        }
     }
 }

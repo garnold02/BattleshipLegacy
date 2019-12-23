@@ -1,7 +1,4 @@
-﻿using Battleship.Engine;
-using BattleshipClient.Engine.Net;
-using BattleshipClient.Engine.Rendering;
-
+﻿using BattleshipClient.Engine.Net;
 using BattleshipClient.Game.Structure;
 using BattleshipClient.Game.GameObjects;
 using OpenTK;
@@ -11,6 +8,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using swf = System.Windows.Forms;
 using BattleshipClient.Game.RegularObjects;
+using BattleshipClient.Engine;
 
 namespace BattleshipClient.Game
 {
@@ -38,6 +36,7 @@ namespace BattleshipClient.Game
         public TurnManager TurnManager { get; private set; }
         public CursorController CursorCtrl { get; private set; }
         public CameraController CameraCtrl { get; private set; }
+        public ParticlePool ParticlePl { get; private set; }
         public Board Board { get; private set; }
         #endregion
         private GameWindow window;
@@ -81,6 +80,8 @@ namespace BattleshipClient.Game
             CursorCtrl = new CursorController(this);
             CameraCtrl = new CameraController(this);
             Board = new Board(this, 6, 10, playerName);
+            ParticlePl = new ParticlePool(this);
+
             AddGameObjects();
             Task.Run(() => InitiateHandshake(playerName));
         }
@@ -92,19 +93,22 @@ namespace BattleshipClient.Game
             ObjManager.Add(boardRenderer);
 
             Board.Renderer = boardRenderer;
-            ParticleSystem s = new ParticleSystem(this)
+
+            ParticleSystem sys = new ParticleSystem(this)
             {
-                Intensity = 16,
-                Lifetime = 3,
-                ConstantForce = new Vector3(0, 2, 0),
-                RandomProbabilities = new Vector3(0.6f, 0, 0.6f),
-                StartScale = Vector3.One * 0.8f,
-                EndScale = Vector3.Zero,
-                EndColor = new OpenTK.Graphics.Color4(1, 1, 1, 0f),
-                TextureName = "smoke"
+                Frequency = 10,
+                ParticleProperties = new ParticleProperties()
+                {
+                    TextureName = "attackIndicator",
+                    ConstantForce = new Vector3(0, 2, 0),
+                    StartColor = OpenTK.Graphics.Color4.White,
+                    EndColor = OpenTK.Graphics.Color4.White,
+                    StartScale = 0,
+                    EndScale = 1,
+                    Lifetime = 2
+                }
             };
-            s.Transform.localPosition = new Vector3(0, 0, 0);
-            ObjManager.Add(s);
+            ObjManager.Add(sys);
         }
         #endregion
         #region FrameEvents
@@ -118,11 +122,13 @@ namespace BattleshipClient.Game
             ObjManager.Update(delta);
             CommandExe.Update(delta);
             CameraCtrl.Update(delta);
+            ParticlePl.Update(delta);
             Input.End();
         }
         private void Render(object sender, FrameEventArgs e)
         {
             ObjManager.Render();
+            ParticlePl.Render();
             window.SwapBuffers();
             GL.ClearColor(0, 0, 0, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);

@@ -1,4 +1,4 @@
-﻿using Battleship.Engine;
+﻿using BattleshipClient.Engine;
 using BattleshipClient.Game.Structure;
 using OpenTK.Input;
 

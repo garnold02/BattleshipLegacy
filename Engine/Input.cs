@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using BattleshipClient.Engine;
-using OpenTK;
-using OpenTK.Input;
+﻿using OpenTK.Input;
 
-namespace Battleship.Engine
+namespace BattleshipClient.Engine
 {
     class Input
     {

@@ -80,6 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Input.cs" />
+    <Compile Include="Engine\ParticleProperties.cs" />
+    <Compile Include="Engine\Rendering\ParticlePoolRenderer.cs" />
     <Compile Include="Engine\Root.cs" />
     <Compile Include="Engine\Net\NetCommunicator.cs" />
     <Compile Include="Engine\Rendering\Camera.cs" />
@@ -102,11 +104,14 @@
     <Compile Include="Game\GameObjects\CursorRenderer.cs" />
     <Compile Include="Game\GameObjects\GameObject.cs" />
     <Compile Include="Game\GameObjects\PlayerRenderer.cs" />
+    <Compile Include="Game\RegularObjects\ParticlePool.cs" />
+    <Compile Include="Game\RegularObjects\ParticleSystems\ParticleData.cs" />
+    <Compile Include="Game\RegularObjects\ParticleSystems\ParticleSubpool.cs" />
     <Compile Include="Game\RegularObjects\RegularObject.cs" />
     <Compile Include="Game\RegularObjects\TurnManager.cs" />
     <Compile Include="Game\RegularObjects\ObjectManager.cs" />
     <Compile Include="Engine\Rendering\Renderer.cs" />
-    <Compile Include="Game\ShipRenderer.cs" />
+    <Compile Include="Engine\Rendering\ShipRenderer.cs" />
     <Compile Include="Game\Structure\Attack.cs" />
     <Compile Include="Game\Structure\Board.cs" />
     <Compile Include="Game\Structure\Cell.cs" />
