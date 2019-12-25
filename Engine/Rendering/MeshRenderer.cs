@@ -12,6 +12,7 @@ namespace BattleshipClient.Engine.Rendering
         public Material Material { get; set; } = Material.Default;
         private readonly List<Shader> attachedShaders;
         private readonly Dictionary<string, int> uniformLocations;
+        private int vao;
 
         public int GlProgram { get; private set; }
 
@@ -30,6 +31,8 @@ namespace BattleshipClient.Engine.Rendering
                 }
                 Apply();
             }
+
+            SetupVAO();
         }
         public void AttachShader(Shader shader)
         {
@@ -56,15 +59,7 @@ namespace BattleshipClient.Engine.Rendering
             {
                 GL.DepthMask(false);
             }
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, Mesh.VertexBuffer);
-            GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
-            GL.EnableVertexAttribArray(1);
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
-            GL.EnableVertexAttribArray(2);
-            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes * 2);
-
+            GL.BindVertexArray(vao);
             GL.UseProgram(GlProgram);
 
             //Set uniforms
@@ -96,6 +91,7 @@ namespace BattleshipClient.Engine.Rendering
 
             GL.UseProgram(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindVertexArray(0);
 
             GL.DepthMask(true);
         }
@@ -140,6 +136,21 @@ namespace BattleshipClient.Engine.Rendering
             }
 
             return uniformLocations[name];
+        }
+        private void SetupVAO()
+        {
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, Mesh.VertexBuffer);
+            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
+            GL.EnableVertexAttribArray(1);
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+            GL.EnableVertexAttribArray(2);
+            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes * 2);
+
+            GL.BindVertexArray(0);
         }
     }
 }
