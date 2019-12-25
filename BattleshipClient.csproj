@@ -105,6 +105,7 @@
     <Compile Include="Game\GameObjects\GameObject.cs" />
     <Compile Include="Game\GameObjects\PlayerRenderer.cs" />
     <Compile Include="Game\RegularObjects\ParticlePool.cs" />
+    <Compile Include="Game\RegularObjects\ParticleSystems\GlParticleInstance.cs" />
     <Compile Include="Game\RegularObjects\ParticleSystems\ParticleData.cs" />
     <Compile Include="Game\RegularObjects\ParticleSystems\ParticleSubpool.cs" />
     <Compile Include="Game\RegularObjects\RegularObject.cs" />

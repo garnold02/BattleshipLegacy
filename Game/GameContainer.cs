@@ -96,18 +96,22 @@ namespace BattleshipClient.Game
 
             ParticleSystem sys = new ParticleSystem(this)
             {
-                Frequency = 10,
+                Frequency = 5,
                 ParticleProperties = new ParticleProperties()
                 {
-                    TextureName = "attackIndicator",
-                    ConstantForce = new Vector3(0, 2, 0),
-                    StartColor = OpenTK.Graphics.Color4.White,
-                    EndColor = OpenTK.Graphics.Color4.White,
-                    StartScale = 0,
-                    EndScale = 1,
-                    Lifetime = 2
+                    TextureName = "smoke",
+                    ConstantForce = new Vector3(0, 1, 0),
+                    ForceProbability = new Vector3(0.25f, 0, 0.25f),
+                    StartColor = OpenTK.Graphics.Color4.Transparent,
+                    MiddleColor = OpenTK.Graphics.Color4.White,
+                    EndColor = OpenTK.Graphics.Color4.Transparent,
+                    ColorBlendSeparator = 0.1f,
+                    StartScale = 0.5f,
+                    EndScale = 0,
+                    Lifetime = 6
                 }
             };
+            sys.Transform.localPosition = new Vector3(0.5f, 0, 0.5f);
             ObjManager.Add(sys);
         }
         #endregion

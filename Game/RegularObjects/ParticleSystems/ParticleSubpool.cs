@@ -11,11 +11,9 @@ namespace BattleshipClient.Game.RegularObjects.ParticleSystems
         public string TextureName { get; }
         public int MaxParticles { get; }
 
-        private readonly ParticleData[] particleProperties;
-        private readonly Vector4[] particleTranslations;
-        private readonly Vector4[] particleColors;
+        private readonly GlParticleInstance[] particleInstances;
 
-        private ParticlePoolRenderer renderer;
+        private readonly ParticlePoolRenderer renderer;
         private int firstAvailableSlot = 0;
 
         public ParticleSubpool(ParticlePool parentPool, string textureName, int maxParticles)
@@ -23,11 +21,7 @@ namespace BattleshipClient.Game.RegularObjects.ParticleSystems
             ParentPool = parentPool;
             TextureName = textureName;
             MaxParticles = maxParticles;
-
-            particleProperties = new ParticleData[MaxParticles];
-            particleTranslations = new Vector4[MaxParticles];
-            particleColors = new Vector4[MaxParticles];
-
+            particleInstances = new GlParticleInstance[MaxParticles];
             renderer = new ParticlePoolRenderer(this);
             firstAvailableSlot = 0;
         }
@@ -35,17 +29,25 @@ namespace BattleshipClient.Game.RegularObjects.ParticleSystems
         {
             for (int i = 0; i < MaxParticles; i++)
             {
-                ParticleData particleData = particleProperties[i];
+                ParticleData particleData = particleInstances[i].ParticleData;
                 if (particleData.IsAlive)
                 {
                     float blend = 1 - particleData.Lifetime / particleData.StartLifetime;
 
                     Vector3 velocity = particleData.Velocity * delta;
                     float scale = Utility.Lerp(particleData.StartScale, particleData.EndScale, blend);
-                    particleTranslations[i] += new Vector4(velocity, 0);
-                    particleTranslations[i].W = scale;
-                    particleColors[i] = Vector4.Lerp(particleData.StartColor, particleData.EndColor, blend);
-                    particleProperties[i].Lifetime -= delta;
+                    particleInstances[i].Transformation = new Vector4(particleInstances[i].Transformation.Xyz + velocity, scale);
+                    if (blend < particleData.ColorBlendSeparator)
+                    {
+                        particleInstances[i].Color = Vector4.Lerp(particleData.StartColor, particleData.MiddleColor, blend / particleData.ColorBlendSeparator);
+                    }
+                    else
+                    {
+                        particleInstances[i].Color = Vector4.Lerp(particleData.MiddleColor, particleData.EndColor, blend / (1f - particleData.ColorBlendSeparator));
+                    }
+                    particleData.Lifetime -= delta;
+
+                    particleInstances[i].ParticleData = particleData;
                 }
                 else
                 {
@@ -53,10 +55,10 @@ namespace BattleshipClient.Game.RegularObjects.ParticleSystems
                     {
                         firstAvailableSlot = i;
                     }
-                    particleTranslations[i] = new Vector4(0, -10000, 0, 1);
+                    particleInstances[i].Transformation = new Vector4(0, -10000, 0, 1);
                 }
             }
-            renderer.FillBuffers(particleTranslations, particleColors);
+            renderer.FillBuffer(particleInstances);
         }
         public void Render()
         {
@@ -64,16 +66,19 @@ namespace BattleshipClient.Game.RegularObjects.ParticleSystems
         }
         public void AddParticle(ParticleData particleData)
         {
-            particleProperties[firstAvailableSlot] = particleData;
-            particleTranslations[firstAvailableSlot] = new Vector4(particleData.StartPosition, particleData.StartScale);
-            particleColors[firstAvailableSlot] = particleData.StartColor;
+            particleInstances[firstAvailableSlot] = new GlParticleInstance()
+            {
+                ParticleData = particleData,
+                Transformation = new Vector4(particleData.StartPosition, 1),
+                Color = particleData.StartColor
+            };
             RecaulculateFirstAvailableSlot();
         }
         private void RecaulculateFirstAvailableSlot()
         {
             for (int i = firstAvailableSlot; i < MaxParticles; i++)
             {
-                if (!particleProperties[i].IsAlive)
+                if (!particleInstances[i].ParticleData.IsAlive)
                 {
                     firstAvailableSlot = i;
                     return;

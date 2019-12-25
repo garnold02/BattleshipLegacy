@@ -12,11 +12,13 @@ namespace BattleshipClient.Engine
     {
         public string TextureName { get; set; }
         public float Lifetime { get; set; }
+        public float ColorBlendSeparator { get; set; }
         public float StartScale { get; set; }
         public float EndScale { get; set; }
         public Vector3 ConstantForce { get; set; }
         public Vector3 ForceProbability { get; set; }
         public Color4 StartColor { get; set; }
+        public Color4 MiddleColor { get; set; }
         public Color4 EndColor { get; set; }
     }
 }
