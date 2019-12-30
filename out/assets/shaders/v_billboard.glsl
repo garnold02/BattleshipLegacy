@@ -11,13 +11,18 @@ uniform mat4 translation;
 uniform mat4 rotation;
 uniform mat4 projection;
 
+out vec3 vertexPosition;
+out vec3 vertexNormal;
 out vec2 vertexUv;
-out vec4 vertexColor;
+out vec4 particleColor;
 
 void main() {
     vec4 camSpaceBillboardPos = rotation * inverse(translation) * vec4(iTransformation.xyz,1);
     vec4 pPos = vec4(vPos*iTransformation.w,1);
     gl_Position=projection * (camSpaceBillboardPos + pPos);
-	vertexUv=vUv;
-    vertexColor = iColor;
+
+    vertexPosition = vPos;
+    vertexNormal = vNorm;
+    vertexUv = vUv;
+    particleColor = iColor;
 }

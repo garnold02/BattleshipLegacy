@@ -12,9 +12,8 @@ namespace BattleshipClient.Engine.Rendering
         public Material Material { get; set; } = Material.Default;
         private readonly List<Shader> attachedShaders;
         private readonly Dictionary<string, int> uniformLocations;
+        private int glProgram;
         private int vao;
-
-        public int GlProgram { get; private set; }
 
         public MeshRenderer(Mesh mesh, params Shader[] shaders)
         {
@@ -40,15 +39,15 @@ namespace BattleshipClient.Engine.Rendering
         }
         public void Apply()
         {
-            GlProgram = GL.CreateProgram();
+            glProgram = GL.CreateProgram();
             foreach (Shader shader in attachedShaders)
             {
-                GL.AttachShader(GlProgram, shader.GlShader);
+                GL.AttachShader(glProgram, shader.GlShader);
             }
-            GL.LinkProgram(GlProgram);
+            GL.LinkProgram(glProgram);
             foreach (Shader shader in attachedShaders)
             {
-                GL.DetachShader(GlProgram, shader.GlShader);
+                GL.DetachShader(glProgram, shader.GlShader);
             }
 
             attachedShaders.Clear();
@@ -60,7 +59,7 @@ namespace BattleshipClient.Engine.Rendering
                 GL.DepthMask(false);
             }
             GL.BindVertexArray(vao);
-            GL.UseProgram(GlProgram);
+            GL.UseProgram(glProgram);
 
             //Set uniforms
             SetUniformMatrix4("translation", Transform.TranslationMatrix);
@@ -70,16 +69,31 @@ namespace BattleshipClient.Engine.Rendering
 
             //Material
             SetUniformVector4("matColor", new Vector4(Material.Color.R, Material.Color.G, Material.Color.B, Material.Color.A));
+            SetUniformVector2("matTiling", Material.Tiling);
+
             if (Material.Texture != null)
             {
-                GL.BindTexture(TextureTarget.Texture2D, Material.Texture.glTexture);
+                SetUniformInt("tex0", 0);
+
                 GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, Material.Texture.glTexture);
                 SetUniformFloat("useTexture", 1);
-                SetUniformVector2("matTiling", Material.Tiling);
             }
             else
             {
                 SetUniformFloat("useTexture", 0);
+            }
+            if (Material.Normal != null)
+            {
+                SetUniformInt("tex1", 1);
+
+                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture2D, Material.Normal.glTexture);
+                SetUniformFloat("useNormal", 1);
+            }
+            else
+            {
+                SetUniformFloat("useNormal", 0);
             }
 
             //Light
@@ -87,7 +101,7 @@ namespace BattleshipClient.Engine.Rendering
             SetUniformVector3("lightDirection", new Vector3(-0.7071f, -0.7071f, -0.7071f));
             SetUniformVector4("lightColor", Vector4.One);
 
-            GL.DrawElements(PrimitiveType.Triangles, Mesh.vertices.Length, DrawElementsType.UnsignedInt, Mesh.faces);
+            GL.DrawElements(PrimitiveType.Triangles, Mesh.faces.Length, DrawElementsType.UnsignedInt, Mesh.faces);
 
             GL.UseProgram(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -97,9 +111,13 @@ namespace BattleshipClient.Engine.Rendering
         }
         public override void Delete()
         {
-            GL.DeleteProgram(GlProgram);
+            GL.DeleteProgram(glProgram);
         }
-
+        public void SetUniformInt(string name, int value)
+        {
+            int uniformLocation = FindUniformLocation(name);
+            GL.Uniform1(uniformLocation, value);
+        }
         public void SetUniformFloat(string name, float value)
         {
             int uniformLocation = FindUniformLocation(name);
@@ -131,7 +149,7 @@ namespace BattleshipClient.Engine.Rendering
             if (!uniformLocations.ContainsKey(name))
             {
                 //If the uniform was not used previously, find it and add it to the cache
-                int uniformLocation = GL.GetUniformLocation(GlProgram, name);
+                int uniformLocation = GL.GetUniformLocation(glProgram, name);
                 uniformLocations.Add(name, uniformLocation);
             }
 

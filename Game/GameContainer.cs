@@ -9,6 +9,8 @@ using System.Drawing;
 using swf = System.Windows.Forms;
 using BattleshipClient.Game.RegularObjects;
 using BattleshipClient.Engine;
+using BattleshipClient.Engine.UI;
+using OpenTK.Graphics;
 
 namespace BattleshipClient.Game
 {
@@ -30,6 +32,7 @@ namespace BattleshipClient.Game
         public bool IsInGame { get; set; }
         #endregion
         #region Components
+        public ImageFont DefaultFont { get; private set; }
         public NetCommunicator NetCom { get; private set; }
         public CommandExecutor CommandExe { get; private set; }
         public ObjectManager ObjManager { get; private set; }
@@ -37,6 +40,7 @@ namespace BattleshipClient.Game
         public CursorController CursorCtrl { get; private set; }
         public CameraController CameraCtrl { get; private set; }
         public ParticlePool ParticlePl { get; private set; }
+        public UIManager UIManager { get; private set; }
         public Board Board { get; private set; }
         #endregion
         private GameWindow window;
@@ -64,6 +68,7 @@ namespace BattleshipClient.Game
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Multisample);
             GL.CullFace(CullFaceMode.Back);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
@@ -73,6 +78,7 @@ namespace BattleshipClient.Game
             Assets.LoadAll();
             Input.Initialize();
 
+            DefaultFont = new ImageFont("font", 109, 119);
             NetCom = new NetCommunicator(hostname, port);
             CommandExe = new CommandExecutor(this);
             ObjManager = new ObjectManager(this);
@@ -81,9 +87,19 @@ namespace BattleshipClient.Game
             CameraCtrl = new CameraController(this);
             Board = new Board(this, 6, 10, playerName);
             ParticlePl = new ParticlePool(this);
+            UIManager = new UIManager(this);
 
             AddGameObjects();
             Task.Run(() => InitiateHandshake(playerName));
+
+            UIText text = new UIText(UIManager, DefaultFont)
+            {
+                Position=new Vector2(0,1),
+                Pivot=new Vector2(0,1),
+                Size = 1f,
+                Text = "00:00",
+            };
+            UIManager.Add(text);
         }
         private void AddGameObjects()
         {
@@ -93,26 +109,6 @@ namespace BattleshipClient.Game
             ObjManager.Add(boardRenderer);
 
             Board.Renderer = boardRenderer;
-
-            ParticleSystem sys = new ParticleSystem(this)
-            {
-                Frequency = 5,
-                ParticleProperties = new ParticleProperties()
-                {
-                    TextureName = "smoke",
-                    ConstantForce = new Vector3(0, 1, 0),
-                    ForceProbability = new Vector3(0.25f, 0, 0.25f),
-                    StartColor = OpenTK.Graphics.Color4.Transparent,
-                    MiddleColor = OpenTK.Graphics.Color4.White,
-                    EndColor = OpenTK.Graphics.Color4.Transparent,
-                    ColorBlendSeparator = 0.1f,
-                    StartScale = 0.5f,
-                    EndScale = 0,
-                    Lifetime = 6
-                }
-            };
-            sys.Transform.localPosition = new Vector3(0.5f, 0, 0.5f);
-            ObjManager.Add(sys);
         }
         #endregion
         #region FrameEvents
@@ -121,6 +117,7 @@ namespace BattleshipClient.Game
             float delta = (float)e.Time;
 
             Input.Begin();
+            UIManager.Update(delta);
             TurnManager.Update(delta);
             CursorCtrl.Update(delta);
             ObjManager.Update(delta);
@@ -133,6 +130,7 @@ namespace BattleshipClient.Game
         {
             ObjManager.Render();
             ParticlePl.Render();
+            UIManager.Render();
             window.SwapBuffers();
             GL.ClearColor(0, 0, 0, 1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -140,6 +138,7 @@ namespace BattleshipClient.Game
         private void OnResized(object sender, EventArgs e)
         {
             GL.Viewport(0, 0, window.Width, window.Height);
+            UIManager.Arrange();
         }
         #endregion
         #region Other

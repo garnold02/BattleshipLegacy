@@ -60,8 +60,8 @@ namespace BattleshipClient.Engine.Net
             {
                 while (tcpStream.DataAvailable)
                 {
-                    byte[] packet = new byte[128];
-                    tcpStream.Read(packet, 0, 128);
+                    byte[] packet = new byte[256];
+                    tcpStream.Read(packet, 0, packet.Length);
 
                     string command = Encoding.ASCII.GetString(packet).Trim('\0');
                     commandQueue.Enqueue(command);
@@ -112,7 +112,7 @@ namespace BattleshipClient.Engine.Net
         }
         private byte[] ToPacket(string text)
         {
-            byte[] packet = new byte[128];
+            byte[] packet = new byte[256];
             for (int i = 0; i < packet.Length; i++)
             {
                 if (i < text.Length)

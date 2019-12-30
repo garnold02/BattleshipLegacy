@@ -82,6 +82,7 @@
     <Compile Include="Engine\Input.cs" />
     <Compile Include="Engine\ParticleProperties.cs" />
     <Compile Include="Engine\Rendering\ParticlePoolRenderer.cs" />
+    <Compile Include="Engine\Rendering\UIRenderer.cs" />
     <Compile Include="Engine\Root.cs" />
     <Compile Include="Engine\Net\NetCommunicator.cs" />
     <Compile Include="Engine\Rendering\Camera.cs" />
@@ -92,6 +93,10 @@
     <Compile Include="Engine\Rendering\Texture.cs" />
     <Compile Include="Engine\Rendering\Vertex.cs" />
     <Compile Include="Engine\Transform.cs" />
+    <Compile Include="Engine\UI\ImageFont.cs" />
+    <Compile Include="Engine\UI\UIElement.cs" />
+    <Compile Include="Engine\UI\UIPanel.cs" />
+    <Compile Include="Engine\UI\UIText.cs" />
     <Compile Include="Engine\Utility.cs" />
     <Compile Include="Game\Assets.cs" />
     <Compile Include="Game\GameObjects\Missile.cs" />
@@ -113,6 +118,7 @@
     <Compile Include="Game\RegularObjects\ObjectManager.cs" />
     <Compile Include="Engine\Rendering\Renderer.cs" />
     <Compile Include="Engine\Rendering\ShipRenderer.cs" />
+    <Compile Include="Game\RegularObjects\UIManager.cs" />
     <Compile Include="Game\Structure\Attack.cs" />
     <Compile Include="Game\Structure\Board.cs" />
     <Compile Include="Game\Structure\Cell.cs" />

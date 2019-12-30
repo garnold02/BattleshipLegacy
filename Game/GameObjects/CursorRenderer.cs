@@ -13,7 +13,7 @@ namespace BattleshipClient.Game.GameObjects
 
         public CursorRenderer(GameContainer container) : base(container)
         {
-            Depth = 1;
+            Depth = 3;
             InitializeRenderers();
         }
 
@@ -40,10 +40,11 @@ namespace BattleshipClient.Game.GameObjects
         private void InitializeRenderers()
         {
             Mesh planeMesh = Assets.Get<Mesh>("plane");
-            Shader litShader = Assets.Get<Shader>("f_lit");
+            Shader vertexShader = Assets.Get<Shader>("v_neutral");
+            Shader fragmentShader = Assets.Get<Shader>("f_lit");
             Texture smallGridTexture = Assets.Get<Texture>("grid");
             Texture largeGridTexture = Assets.Get<Texture>("largeGrid");
-            claimRenderer = new MeshRenderer(planeMesh, litShader)
+            claimRenderer = new MeshRenderer(planeMesh, vertexShader, fragmentShader)
             {
                 Material = new Material()
                 {
@@ -55,7 +56,7 @@ namespace BattleshipClient.Game.GameObjects
             claimRenderer.Transform.localPosition.Y = 0.03f;
             claimRenderer.Transform.localScale = Vector3.One * Container.Board.PieceLength;
             shipRenderer = new ShipRenderer(Container.Board);
-            strategyCursorRenderer = new MeshRenderer(planeMesh, litShader)
+            strategyCursorRenderer = new MeshRenderer(planeMesh, vertexShader, fragmentShader)
             {
                 Material = new Material()
                 {

@@ -46,7 +46,7 @@ namespace BattleshipClient.Game.GameObjects
         }
         public void CreateAttackRenderer(Attack attack)
         {
-            MeshRenderer attackRenderer = new MeshRenderer(Assets.Get<Mesh>("plane"), Assets.Get<Shader>("f_lit"))
+            MeshRenderer attackRenderer = new MeshRenderer(Assets.Get<Mesh>("plane"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {

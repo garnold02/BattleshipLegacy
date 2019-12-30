@@ -18,21 +18,21 @@ namespace BattleshipClient.Engine.Rendering
         {
             Board = board;
 
-            frontRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_front"), Assets.Get<Shader>("f_lit"))
+            frontRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_front"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {
                     Texture = Assets.Get<Texture>("ship")
                 }
             };
-            middleRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_middle"), Assets.Get<Shader>("f_lit"))
+            middleRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_middle"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {
                     Texture = Assets.Get<Texture>("ship")
                 }
             };
-            backRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_back"), Assets.Get<Shader>("f_lit"))
+            backRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_back"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {

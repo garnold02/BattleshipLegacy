@@ -100,6 +100,9 @@ namespace BattleshipClient.Game.RegularObjects
 
                     }
                     break;
+                case "OUT":
+                    Container.TurnManager.EnterNeutral();
+                    break;
             }
         }
         private void Log(string message, params object[] parameters)

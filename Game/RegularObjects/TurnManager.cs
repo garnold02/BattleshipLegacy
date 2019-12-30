@@ -57,6 +57,11 @@ namespace BattleshipClient.Game.RegularObjects
                     break;
             }
         }
+        public void EnterNeutral()
+        {
+            Phase = TurnPhase.Neutral;
+            OnNeutralEntered();
+        }
 
         private void LandClaimingLogic()
         {
@@ -92,17 +97,21 @@ namespace BattleshipClient.Game.RegularObjects
             }
         }
 
+        private void OnNeutralEntered()
+        {
+            Container.CameraCtrl.TargetZoom = 32;
+        }
         private void OnLandClaimingEntered()
         {
-
+            Container.CameraCtrl.TargetZoom = 32;
         }
         private void OnShipPlacementEntered()
         {
-
+            Container.CameraCtrl.TargetZoom = 10;
         }
         private void OnStrategyEntered()
         {
-
+            Container.CameraCtrl.TargetZoom = 18;
         }
         private void OnCinematicsEntered()
         {
