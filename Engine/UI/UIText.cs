@@ -34,20 +34,44 @@ namespace BattleshipClient.Engine.UI
         private void Refresh()
         {
             Scale = new Vector2(Text.Length * 1.25f * Font.CharWidth * Size, Font.CharHeight * Size);
-            renderers.ForEach(r => r.Delete());
-            renderers.Clear();
             int x = 0;
-
-            foreach (char chr in Text)
+            int modCount = Text.Length;
+            if (renderers.Count < Text.Length)
             {
-                UIRenderer charRenderer = new UIRenderer(this)
+                x = renderers.Count;
+                modCount = renderers.Count;
+                for (int i = renderers.Count; i < Text.Length; i++)
                 {
-                    Texture = Font.Texture,
-                    Color = Color4.White,
-                    Transformation = new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f - Scale.X * 0.5f, 0, Font.CharWidth, Font.CharHeight) * Size * 0.5f,
-                    UvTransformation = Font.GetCharacterBox(chr)
-                };
-                renderers.Add(charRenderer);
+                    char chr = Text[i];
+                    UIRenderer charRenderer = new UIRenderer(this)
+                    {
+                        Texture = Font.Texture,
+                        Color = Color4.White,
+                        Transformation = new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f - Scale.X * 0.5f, 0, Font.CharWidth, Font.CharHeight) * Size * 0.5f,
+                        UvTransformation = Font.GetCharacterBox(chr)
+                    };
+                    renderers.Add(charRenderer);
+                    x++;
+                }
+                x = 0;
+            }
+            else if (renderers.Count > text.Length)
+            {
+                for (int i = Text.Length; i < renderers.Count; i++)
+                {
+                    renderers[i].Delete();
+                    renderers.RemoveAt(i);
+                }
+            }
+            for (int i = 0; i < modCount; i++)
+            {
+                char chr = Text[i];
+
+                UIRenderer charRenderer = renderers[i];
+                charRenderer.Texture = Font.Texture;
+                charRenderer.Color = Color4.White;
+                charRenderer.Transformation = new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f - Scale.X * 0.5f, 0, Font.CharWidth, Font.CharHeight) * Size * 0.5f;
+                charRenderer.UvTransformation = Font.GetCharacterBox(chr);
                 x++;
             }
         }

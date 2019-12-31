@@ -6,6 +6,7 @@ in vec3 vertexNormal;
 in vec2 vertexUv;
 
 uniform sampler2D tex0;
+
 uniform mat4 rotation;
 uniform bool useTexture;
 uniform vec4 matColor;

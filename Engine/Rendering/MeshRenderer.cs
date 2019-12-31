@@ -146,6 +146,7 @@ namespace BattleshipClient.Engine.Rendering
 
         private int FindUniformLocation(string name)
         {
+            GL.UseProgram(glProgram);
             if (!uniformLocations.ContainsKey(name))
             {
                 //If the uniform was not used previously, find it and add it to the cache

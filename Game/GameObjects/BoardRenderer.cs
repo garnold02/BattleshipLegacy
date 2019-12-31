@@ -12,24 +12,23 @@ namespace BattleshipClient.Game.GameObjects
         private readonly MeshRenderer smallGridRenderer;
         private readonly MeshRenderer largeGridRenderer;
         private readonly MeshRenderer claimRenderer;
+        private float elapsedTime;
 
         public BoardRenderer(GameContainer container) : base(container)
         {
             Depth = 2;
 
             Mesh planeModel = Assets.Get<Mesh>("plane");
-            oceanPlaneRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_water"), Assets.Get<Shader>("f_water"))
+            oceanPlaneRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_water"), Assets.Get<Shader>("f_noise"), Assets.Get<Shader>("f_water"))
             {
                 Material = new Material()
                 {
                     Opaque = false,
-                    Color = new Color4(0.2f, 0.5f, 0.8f, 0.4f),
-                    Normal = Assets.Get<Texture>("waterNormal"),
-                    Tiling = Vector2.One * 250
+                    Color = new Color4(70, 174, 212, 120),
                 },
                 Transform = new Transform()
                 {
-                    localScale = Vector3.One * 1000
+                    localScale = Vector3.One * 500
                 }
             };
             oceanFloorRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
@@ -37,11 +36,12 @@ namespace BattleshipClient.Game.GameObjects
                 Material = new Material()
                 {
                     Texture = Assets.Get<Texture>("oceanFloor"),
-                    Tiling = Vector2.One * 250
+                    Tiling = Vector2.One * 50
                 },
                 Transform = new Transform()
                 {
-                    localScale = Vector3.One * 1000
+                    localPosition = new Vector3(0, -24, 0),
+                    localScale = Vector3.One * 500
                 }
             };
             smallGridRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
@@ -49,7 +49,7 @@ namespace BattleshipClient.Game.GameObjects
                 Material = new Material()
                 {
                     Opaque = false,
-                    Color = new Color4(1f, 1f, 1f, 0.03f),
+                    Color = new Color4(1f, 1f, 1f, 0.04f),
                     Texture = Assets.Get<Texture>("grid"),
                     Tiling = new Vector2(Container.Board.FullSideLength, Container.Board.FullSideLength)
                 },
@@ -64,7 +64,7 @@ namespace BattleshipClient.Game.GameObjects
                 Material = new Material()
                 {
                     Opaque = false,
-                    Color = new Color4(1f, 1f, 1f, 0.04f),
+                    Color = new Color4(1f, 1f, 1f, 0.05f),
                     Texture = Assets.Get<Texture>("largeGrid"),
                     Tiling = new Vector2(Container.Board.SideLength, Container.Board.SideLength)
                 },
@@ -99,8 +99,8 @@ namespace BattleshipClient.Game.GameObjects
         }
         public override void Update(float delta)
         {
-            oceanPlaneRenderer.Transform.localPosition = new Vector3(((int)Container.CameraCtrl.CurrentPosition.X / 8) * 8, 0, ((int)Container.CameraCtrl.CurrentPosition.Z / 8) * 8);
-            oceanFloorRenderer.Transform.localPosition = new Vector3(((int)Container.CameraCtrl.CurrentPosition.X / 4) * 4, -24, ((int)Container.CameraCtrl.CurrentPosition.Z / 4) * 4);
+            oceanPlaneRenderer.SetUniformFloat("time", elapsedTime);
+            elapsedTime += delta;
         }
         public override void Render()
         {

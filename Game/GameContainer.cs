@@ -41,6 +41,7 @@ namespace BattleshipClient.Game
         public CameraController CameraCtrl { get; private set; }
         public ParticlePool ParticlePl { get; private set; }
         public UIManager UIManager { get; private set; }
+        public UI UI { get; private set; }
         public Board Board { get; private set; }
         #endregion
         private GameWindow window;
@@ -88,18 +89,10 @@ namespace BattleshipClient.Game
             Board = new Board(this, 6, 10, playerName);
             ParticlePl = new ParticlePool(this);
             UIManager = new UIManager(this);
+            UI = new UI(this);
 
             AddGameObjects();
             Task.Run(() => InitiateHandshake(playerName));
-
-            UIText text = new UIText(UIManager, DefaultFont)
-            {
-                Position=new Vector2(0,1),
-                Pivot=new Vector2(0,1),
-                Size = 1f,
-                Text = "00:00",
-            };
-            UIManager.Add(text);
         }
         private void AddGameObjects()
         {
@@ -118,6 +111,7 @@ namespace BattleshipClient.Game
 
             Input.Begin();
             UIManager.Update(delta);
+            UI.Update(delta);
             TurnManager.Update(delta);
             CursorCtrl.Update(delta);
             ObjManager.Update(delta);

@@ -61,7 +61,7 @@ namespace BattleshipClient.Game.RegularObjects
                     }
                     break;
                 case "ADV":
-                    Container.TurnManager.Advance();
+                    Container.TurnManager.Advance(int.Parse(parameters[0]));
                     break;
                 case "SRQA":
                     {

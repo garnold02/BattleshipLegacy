@@ -118,6 +118,7 @@
     <Compile Include="Game\RegularObjects\ObjectManager.cs" />
     <Compile Include="Engine\Rendering\Renderer.cs" />
     <Compile Include="Engine\Rendering\ShipRenderer.cs" />
+    <Compile Include="Game\RegularObjects\UI.cs" />
     <Compile Include="Game\RegularObjects\UIManager.cs" />
     <Compile Include="Game\Structure\Attack.cs" />
     <Compile Include="Game\Structure\Board.cs" />

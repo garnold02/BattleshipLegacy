@@ -38,7 +38,11 @@ namespace BattleshipClient.Game.GameObjects
             Transform.localRotation = Utility.LookAt(Transform.localPosition, new Vector3(Origin.X, 1, Origin.Y));
             meshRenderer = new MeshRenderer(Assets.Get<Mesh>("missile"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
-                Transform = Transform
+                Transform = Transform,
+                Material = new Material()
+                {
+                    Texture = Assets.Get<Texture>("missileTex")
+                }
             };
 
             particleSystem = new ParticleSystem(Container)

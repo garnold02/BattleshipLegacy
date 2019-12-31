@@ -1,12 +1,14 @@
 ﻿using BattleshipClient.Engine;
 using BattleshipClient.Game.Structure;
 using OpenTK.Input;
+using System;
 
 namespace BattleshipClient.Game.RegularObjects
 {
     class TurnManager : RegularObject
     {
         public TurnPhase Phase { get; private set; } = TurnPhase.Neutral;
+        public DateTime PhaseDeadline { get; private set; } = DateTime.Now;
         public TurnManager(GameContainer container) : base(container)
         {
 
@@ -30,9 +32,13 @@ namespace BattleshipClient.Game.RegularObjects
                     CinematicsLogic();
                     break;
             }
+
+            SetCooldownText();
         }
-        public void Advance()
+        public void Advance(int timestamp)
         {
+            PhaseDeadline = new DateTime(DateTime.Now.Year, 1, 1) + new TimeSpan(0, 0, timestamp);
+
             switch (Phase)
             {
                 case TurnPhase.Neutral:
@@ -107,19 +113,25 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void OnShipPlacementEntered()
         {
-            Container.CameraCtrl.TargetZoom = 10;
+            Container.CameraCtrl.TargetZoom = 8;
         }
         private void OnStrategyEntered()
         {
-            Container.CameraCtrl.TargetZoom = 18;
+            Container.CameraCtrl.TargetZoom = 10;
         }
         private void OnCinematicsEntered()
         {
+            Container.CameraCtrl.TargetZoom = 12;
             foreach (Player player in Container.Board.Players)
             {
                 player.ClearAttackIndicators();
             }
             Container.Board.CreateMissiles();
+        }
+        private void SetCooldownText()
+        {
+            TimeSpan timeSpan = (PhaseDeadline - DateTime.Now);
+            Container.UI.CooldownText.Text = timeSpan.ToString("mm\\:ss");
         }
     }
 }

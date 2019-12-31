@@ -2,36 +2,36 @@
 
 out vec4 FragColor;
 
+in vec3 vertexPosition;
 in vec3 vertexNormal;
 in vec2 vertexUv;
 
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-
 uniform mat4 rotation;
-uniform bool useTexture;
 uniform vec4 matColor;
-uniform vec2 matTiling;
 
+uniform float time;
 uniform float lightAmbient;
 uniform vec4 lightColor;
 uniform vec3 lightDirection;
 
+float delta = 1;
+float waterFlowTime = 0.4;
+float SimplexPerlin3D(vec3 P);
+float wnoise(vec3 pos, float s, float t)
+{
+    float n =
+    SimplexPerlin3D(vec3(pos.xz*900,t))*0.5+
+    SimplexPerlin3D(vec3(pos.xz*1000+vec2(-1000,0),t))*0.25;
+    n = clamp(abs(n)*2*0.15,0,0.15)+0.85;
+    return n;
+}
+
 void main()
 {
-    vec3 textureNormal = normalize(texture(tex1, vertexUv*matTiling).rgb * 2.0 - 1.0);
-
-    float diffuse = clamp(dot(-lightDirection, textureNormal),0,1);
+    vec3 normal = vec3(0,1,0);
+    float diffuse = clamp(dot(-lightDirection, normal),0,1);
     float lightValue = clamp(diffuse+lightAmbient,0,1);
 
-    if(useTexture)
-    {
-        vec4 textureColor = texture(tex0, vertexUv*matTiling); 
-        vec4 unlitColor = textureColor * matColor * vec4(lightColor.xyz,1);
-        FragColor = vec4(unlitColor.xyz*lightValue*lightColor.w,unlitColor.w);
-    }else
-    {
-        vec4 unlitColor = matColor * vec4(lightColor.xyz,1);
-        FragColor = vec4(unlitColor.xyz* lightValue * lightColor.w, unlitColor.w);
-    }
+    vec4 unlitColor = matColor * vec4(lightColor.xyz,1) * wnoise(vertexPosition, 1000, time*waterFlowTime);
+    FragColor = vec4(unlitColor.xyz* lightValue * lightColor.w, unlitColor.w);
 } 
