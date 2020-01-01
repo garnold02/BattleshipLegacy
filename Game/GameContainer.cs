@@ -56,7 +56,7 @@ namespace BattleshipClient.Game
         #region Initializators
         private void InitializeWindow()
         {
-            window = new GameWindow(800, 800)
+            window = new GameWindow(800, 800, new GraphicsMode(new ColorFormat(32), 8, 0, 4))
             {
                 Title = "Torpedó"
             };
