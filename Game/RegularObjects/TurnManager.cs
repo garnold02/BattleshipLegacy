@@ -1,6 +1,5 @@
 ﻿using BattleshipClient.Engine;
 using BattleshipClient.Game.Structure;
-using OpenTK.Graphics;
 using OpenTK.Input;
 using System;
 
@@ -131,17 +130,8 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void SetCooldownText()
         {
-            if (PhaseDeadline > DateTime.Now)
-            {
-                TimeSpan timeSpan = (PhaseDeadline - DateTime.Now);
-                Container.UI.CooldownText.Text = timeSpan.ToString("mm\\:ss");
-                Container.UI.CooldownText.Color = timeSpan.TotalSeconds > 10 ? Color4.White : Color4.Red;
-            }
-            else
-            {
-                Container.UI.CooldownText.Text = "00:00";
-                Container.UI.CooldownText.Color = Color4.Red;
-            }
+            TimeSpan timeSpan = (PhaseDeadline - DateTime.Now);
+            Container.UI.CooldownText.Text = timeSpan.ToString("mm\\:ss");
         }
     }
 }

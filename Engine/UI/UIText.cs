@@ -8,19 +8,7 @@ namespace BattleshipClient.Engine.UI
     class UIText : UIElement
     {
         public ImageFont Font { get; set; }
-        public Color4 Color { get; set; } = Color4.White;
-        public float FontSize
-        {
-            get
-            {
-                return fontSize;
-            }
-            set
-            {
-                fontSize = value;
-                Refresh();
-            }
-        }
+        public float Size { get; set; } = 1;
         public string Text
         {
             get
@@ -33,8 +21,7 @@ namespace BattleshipClient.Engine.UI
                 Refresh();
             }
         }
-        private float fontSize = 1f;
-        private string text = "";
+        private string text;
 
         public UIText(UIManager manager, ImageFont font) : base(manager)
         {
@@ -46,7 +33,7 @@ namespace BattleshipClient.Engine.UI
         }
         private void Refresh()
         {
-            Scale = new Vector2(Text.Length * 1.25f * Font.CharWidth, Font.CharHeight) * FontSize;
+            Scale = new Vector2(Text.Length * 1.25f * Font.CharWidth * Size, Font.CharHeight * Size);
             int x = 0;
             int modCount = Text.Length;
             if (renderers.Count < Text.Length)
@@ -59,8 +46,8 @@ namespace BattleshipClient.Engine.UI
                     UIRenderer charRenderer = new UIRenderer(this)
                     {
                         Texture = Font.Texture,
-                        Color = Color,
-                        Transformation = GetCharPosition(x),
+                        Color = Color4.White,
+                        Transformation = new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f - Scale.X * 0.5f, 0, Font.CharWidth, Font.CharHeight) * Size * 0.5f,
                         UvTransformation = Font.GetCharacterBox(chr)
                     };
                     renderers.Add(charRenderer);
@@ -82,15 +69,11 @@ namespace BattleshipClient.Engine.UI
 
                 UIRenderer charRenderer = renderers[i];
                 charRenderer.Texture = Font.Texture;
-                charRenderer.Color = Color;
-                charRenderer.Transformation = GetCharPosition(x);
+                charRenderer.Color = Color4.White;
+                charRenderer.Transformation = new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f - Scale.X * 0.5f, 0, Font.CharWidth, Font.CharHeight) * Size * 0.5f;
                 charRenderer.UvTransformation = Font.GetCharacterBox(chr);
                 x++;
             }
-        }
-        private Vector4 GetCharPosition(float x)
-        {
-            return new Vector4(ActualPosition.X, ActualPosition.Y, 0, 0) + new Vector4((x + 0.5f) * Font.CharWidth * 1.25f * FontSize - Scale.X * 0.5f, 0, Font.CharWidth * FontSize, Scale.Y) * 0.5f;
         }
     }
 }
