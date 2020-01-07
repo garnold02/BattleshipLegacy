@@ -19,7 +19,7 @@ namespace BattleshipClient.Game.GameObjects
             Depth = 2;
 
             Mesh planeModel = Assets.Get<Mesh>("plane");
-            oceanPlaneRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_water"), Assets.Get<Shader>("f_noise"), Assets.Get<Shader>("f_water"))
+            oceanPlaneRenderer = new MeshRenderer(planeModel, Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {
