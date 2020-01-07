@@ -46,7 +46,7 @@ namespace BattleshipClient.Engine.Rendering
         }
         public void SetProperties(int positionX, int positionY, int length, bool isVertical)
         {
-            Position = new Vector3(positionX - Board.FullSideLength / 2, -0.75f, positionY - Board.FullSideLength / 2);
+            Position = new Vector3(positionX - Board.FullSideLength / 2, -0.5f, positionY - Board.FullSideLength / 2);
             Length = length;
             IsVertical = isVertical;
 
