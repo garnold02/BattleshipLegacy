@@ -1,4 +1,5 @@
 ﻿using BattleshipClient.Engine;
+using BattleshipClient.Engine.Net;
 using BattleshipClient.Game.Structure;
 using OpenTK.Graphics;
 using OpenTK.Input;
@@ -38,7 +39,7 @@ namespace BattleshipClient.Game.RegularObjects
         }
         public void Advance(int timestamp)
         {
-            PhaseDeadline = new DateTime(DateTime.Now.Year, 1, 1) + new TimeSpan(0, 0, timestamp);
+            PhaseDeadline = new DateTime(DateTime.Now.Year, 1, 1) + TimeSpan.FromSeconds(timestamp);
 
             switch (Phase)
             {
@@ -74,14 +75,16 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Container.NetCom.SendRequest("LRQ {0} {1}", (int)Container.CursorCtrl.ClaimPosition.X, (int)Container.CursorCtrl.ClaimPosition.Y);
+
+                Container.NetCom.SendPacket(new Packet(CommandType.LandRequest, (int)Container.CursorCtrl.ClaimPosition.X, (int)Container.CursorCtrl.ClaimPosition.Y));
             }
         }
         private void ShipPlacementLogic()
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Container.NetCom.SendRequest("SRQ {0} {1} {2} {3}", (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical.ToString().ToLower());
+                Packet packet = new Packet(CommandType.ShipRequest, (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical.ToString().ToLower());
+                Container.NetCom.SendPacket(packet);
             }
             if (Input.IsKeyPressed(Key.Space))
             {
@@ -92,14 +95,15 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Container.NetCom.SendRequest("ARQ {0} {1}", (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y);
+                Packet packet = new Packet(CommandType.AttackRequest, (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y);
+                Container.NetCom.SendPacket(packet);
             }
         }
         private void CinematicsLogic()
         {
             if (Input.IsKeyPressed(Key.Space))
             {
-                Container.NetCom.SendRequest("CSF");
+                Container.NetCom.SendPacket(new Packet(CommandType.CutsceneFinished));
                 Container.Board.Attacks.Clear();
             }
         }

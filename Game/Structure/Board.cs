@@ -52,9 +52,8 @@ namespace BattleshipClient.Game.Structure
         {
             foreach (string playerData in data)
             {
-                string[] tokens = playerData.Split(';');
-                byte id = byte.Parse(tokens[0]);
-                string name = tokens[1];
+                byte id = (byte)(playerData[0]);
+                string name = playerData.Substring(1);
 
                 Player player = new Player(this, name, id);
                 Players.Add(player);

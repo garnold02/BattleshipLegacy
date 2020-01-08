@@ -2,6 +2,7 @@
 using BattleshipClient.Game;
 using OpenTK;
 using System;
+using System.Text;
 
 namespace BattleshipClient.Engine
 {
@@ -67,6 +68,10 @@ namespace BattleshipClient.Engine
         {
             float distance = b - a;
             return a + distance * t;
+        }
+        public static int IntFromString(string str)
+        {
+            return BitConverter.ToInt32(Encoding.ASCII.GetBytes(str), 0);
         }
     }
 }

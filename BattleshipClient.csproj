@@ -80,6 +80,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Input.cs" />
+    <Compile Include="Engine\Net\CommandType.cs" />
+    <Compile Include="Engine\Net\Packet.cs" />
+    <Compile Include="Engine\Net\PacketChunk.cs" />
     <Compile Include="Engine\ParticleProperties.cs" />
     <Compile Include="Engine\Rendering\ParticlePoolRenderer.cs" />
     <Compile Include="Engine\Rendering\UIRenderer.cs" />

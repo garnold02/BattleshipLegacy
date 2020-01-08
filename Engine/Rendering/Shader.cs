@@ -6,6 +6,11 @@ namespace BattleshipClient.Engine.Rendering
 {
     class Shader
     {
+        private static void Log(string message, params object[] parameters)
+        {
+            Console.WriteLine("[SHD] {0}", string.Format(message, parameters));
+        }
+
         public int GlShader { get; }
         public ShaderType Type { get; }
 
@@ -20,11 +25,11 @@ namespace BattleshipClient.Engine.Rendering
             string compileInfo = GL.GetShaderInfoLog(GlShader);
             if (compileInfo.Length > 0)
             {
-                Console.WriteLine("[{0}] {1}", path, compileInfo);
+                Log("[{0}] {1}", path, compileInfo);
             }
             else
             {
-                Console.WriteLine("[{0}] Compiled successfully.", path);
+                Log("[{0}] Compiled successfully.", path);
             }
         }
     }

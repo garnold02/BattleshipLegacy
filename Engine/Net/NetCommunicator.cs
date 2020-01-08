@@ -31,20 +31,18 @@ namespace BattleshipClient.Engine.Net
             };
             connectorThread.Start(connectionData);
         }
-        public void SendRequest(string request, params object[] parameters)
+        public void SendPacket(Packet packet)
         {
             if (IsConnected)
             {
                 try
                 {
-                    string combined = string.Format(request, parameters);
-                    byte[] packet = ToPacket(combined);
-                    tcpStream.Write(packet, 0, packet.Length);
-                    Log("Sent: [{0}]", combined);
+                    tcpStream.Write(packet.Bytes, 0, 256);
+                    Log("Sent: {0}", Enum.GetName(typeof(CommandType), packet.Type));
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Failed to send request: {0}", e.Message);
+                    Log("Failed to send request: {0}", e.Message);
                 }
             }
             else
@@ -52,23 +50,23 @@ namespace BattleshipClient.Engine.Net
                 Log("Failed to send request: Not connected to server");
             }
         }
-        public Queue<string> FetchCommands()
+        public Queue<Packet> FetchPackets()
         {
-            Queue<string> commandQueue = new Queue<string>();
+            Queue<Packet> packetQueue = new Queue<Packet>();
 
             if (IsConnected)
             {
                 while (tcpStream.DataAvailable)
                 {
-                    byte[] packet = new byte[256];
-                    tcpStream.Read(packet, 0, packet.Length);
+                    byte[] rawData = new byte[256];
+                    tcpStream.Read(rawData, 0, rawData.Length);
 
-                    string command = Encoding.ASCII.GetString(packet).Trim('\0');
-                    commandQueue.Enqueue(command);
+                    Packet packet = new Packet(rawData);
+                    packetQueue.Enqueue(packet);
                 }
             }
 
-            return commandQueue;
+            return packetQueue;
         }
 
         private void ConnectorThreadMethod(object parameter)
@@ -109,23 +107,6 @@ namespace BattleshipClient.Engine.Net
                 IsConnected = false;
                 Log("Failed to connect to server.");
             }
-        }
-        private byte[] ToPacket(string text)
-        {
-            byte[] packet = new byte[256];
-            for (int i = 0; i < packet.Length; i++)
-            {
-                if (i < text.Length)
-                {
-                    packet[i] = (byte)text[i];
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return packet;
         }
         private void Log(string message, params object[] parameters)
         {
