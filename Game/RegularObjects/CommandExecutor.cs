@@ -26,54 +26,160 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void HandlePacket(Packet packet)
         {
-            byte[][] chunks = packet.GetChunks();
+            Chunk[] chunks = packet.GetChunks();
 
-            Log("Received: {0}", Enum.GetName(typeof(CommandType), packet.Type));
+            Log("Received: {0}", Enum.GetName(typeof(PacketType), packet.Type));
             switch (packet.Type)
             {
-                case CommandType.JoinRequest:
+                case PacketType.JoinRequestAccepted:
+                    {
+                        Container.IsInGame = true;
+                    }
                     break;
-                case CommandType.JoinRequestAccepted:
+                case PacketType.JoinRequestDenied:
+                    //TODO
                     break;
-                case CommandType.JoinRequestDenied:
+                case PacketType.LandRequestAccepted:
                     break;
-                case CommandType.LandRequest:
+                case PacketType.LandRequestDenied:
                     break;
-                case CommandType.LandRequestAccepted:
+                case PacketType.ShipRequestAccepted:
+                    {
+                        int x = (chunks[0] as ByteChunk).Data;
+                        int y = (chunks[1] as ByteChunk).Data;
+                        int length = (chunks[2] as ByteChunk).Data;
+                        bool isVertical = (chunks[3] as BoolChunk).Data;
+                        Ship ship = new Ship(Container.Board.LocalPlayer, x, y, length, isVertical);
+                        Container.Board.LocalPlayer.AddShip(ship);
+                        Container.CursorCtrl.ShipLength++;
+                    }
                     break;
-                case CommandType.LandRequestDenied:
+                case PacketType.ShipRequestDenied:
                     break;
-                case CommandType.ShipRequest:
+                case PacketType.AttackRequestAccepted:
+                    {
+                        int x = (chunks[0] as ByteChunk).Data;
+                        int y = (chunks[1] as ByteChunk).Data;
+                        Attack attack = new Attack(null, x, y, false);
+                        Container.Board.LocalPlayer.AddAttackIndicator(attack);
+                    }
                     break;
-                case CommandType.ShipRequestAccepted:
+                case PacketType.AttackRequestDenied:
                     break;
-                case CommandType.ShipRequestDenied:
+                case PacketType.AdvanceTurn:
+                    {
+                        int timestamp = (chunks[0] as IntChunk).Data;
+                        Container.TurnManager.Advance(timestamp);
+                    }
                     break;
-                case CommandType.AttackRequest:
+                case PacketType.PlayerList:
+                    {
+                        Container.Board.FillPlayerList(chunks);
+                    }
                     break;
-                case CommandType.AttackRequestAccepted:
+                case PacketType.LandBroadcast:
+                    {
+                        Player player = Container.Board.GetPlayerByID((chunks[0] as ByteChunk).Data);
+                        byte x = (chunks[1] as ByteChunk).Data;
+                        byte y = (chunks[2] as ByteChunk).Data;
+                        player.BoardClaim = Container.Board.Pieces[x, y];
+
+                        if (player == Container.Board.LocalPlayer)
+                        {
+                            Container.Board.Renderer.SetClaimPosition(x, y);
+                        }
+                    }
                     break;
-                case CommandType.AttackRequestDenied:
+                case PacketType.AttackBroadcast:
+                    {
+                        List<Player> playerList = new List<Player>();
+
+                        int state = 0;  //0 = fetch xyh; 1 = id chain length; 2 = fetch ids; 3 = create attack
+                        byte x = 0, y = 0, chainLength = 0;
+                        bool hit = false;
+                        for (int i = 0; i < chunks.Length; i++)
+                        {
+                            switch (state)
+                            {
+                                case 0:
+                                    {
+                                        x = (chunks[i] as ByteChunk).Data;
+                                        y = (chunks[i + 1] as ByteChunk).Data;
+                                        hit = (chunks[i + 2] as BoolChunk).Data;
+                                        i += 2;
+                                        state = 1;
+                                    }
+                                    continue;
+                                case 1:
+                                    {
+                                        chainLength = (chunks[i] as ByteChunk).Data;
+                                        state = 2;
+                                    }
+                                    continue;
+                                case 2:
+                                    {
+                                        if (playerList.Count < chainLength)
+                                        {
+                                            byte id = (chunks[i] as ByteChunk).Data;
+                                            Player player = Container.Board.GetPlayerByID(id);
+                                            playerList.Add(player);
+                                            if (playerList.Count == chainLength)
+                                            {
+                                                Attack attack = new Attack(playerList, x, y, hit);
+                                                Container.Board.Attacks.Add(attack);
+                                                playerList = new List<Player>();
+                                                state = 0;
+                                            }
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
+                    }
                     break;
-                case CommandType.AdvanceTurn:
+                case PacketType.ShipSunk:
                     break;
-                case CommandType.PlayerList:
+                case PacketType.Score:
+                    {
+                        for (int i = 0; i < chunks.Length / 2; i++)
+                        {
+                            int pos = i * 2;
+                            byte id = (chunks[pos] as ByteChunk).Data;
+                            int score = (chunks[pos + 1] as IntChunk).Data;
+
+                            Player player = Container.Board.GetPlayerByID(id);
+                            player.Score = score;
+                            if (player == Container.Board.LocalPlayer)
+                            {
+                                Container.UI.ScoreText.Text = string.Format("{0} pont", player.Score);
+                            }
+                        }
+                    }
                     break;
-                case CommandType.LandBroadcast:
+                case PacketType.OutOfGame:
+                    {
+                        Container.TurnManager.EnterNeutral();
+                    }
                     break;
-                case CommandType.AttackBroadcast:
+                case PacketType.EndOfGame:
                     break;
-                case CommandType.ShipSunk:
+                case PacketType.Disconnect:
                     break;
-                case CommandType.CutsceneFinished:
+
+                case PacketType.JoinRequest:
+                    //Irrelevant
                     break;
-                case CommandType.Score:
+                case PacketType.ShipRequest:
+                    //Irrelevant
                     break;
-                case CommandType.OutOfGame:
+                case PacketType.LandRequest:
+                    //Irrelevant
                     break;
-                case CommandType.EndOfGame:
+                case PacketType.AttackRequest:
+                    //Irrelevant
                     break;
-                case CommandType.Disconnect:
+                case PacketType.CutsceneFinished:
+                    //Irrelevant
                     break;
             }
         }

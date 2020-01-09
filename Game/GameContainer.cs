@@ -142,7 +142,7 @@ namespace BattleshipClient.Game
             Task clientConnectedWaitTask = NetCom.IsConnectedTCS.Task;
             if (await Task.WhenAny(clientConnectedWaitTask, Task.Delay(8000)) == clientConnectedWaitTask)
             {
-                NetCom.SendPacket(new Packet(CommandType.JoinRequest, playerName));
+                NetCom.SendPacket(new Packet(PacketType.JoinRequest, new StringChunk(playerName)));
                 Log("Handshake successful.");
             }
             else

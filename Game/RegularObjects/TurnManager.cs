@@ -76,14 +76,14 @@ namespace BattleshipClient.Game.RegularObjects
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
 
-                Container.NetCom.SendPacket(new Packet(CommandType.LandRequest, (int)Container.CursorCtrl.ClaimPosition.X, (int)Container.CursorCtrl.ClaimPosition.Y));
+                Container.NetCom.SendPacket(new Packet(PacketType.LandRequest, new ByteChunk((byte)Container.CursorCtrl.ClaimPosition.X), new ByteChunk((byte)Container.CursorCtrl.ClaimPosition.Y)));
             }
         }
         private void ShipPlacementLogic()
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Packet packet = new Packet(CommandType.ShipRequest, (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical.ToString().ToLower());
+                Packet packet = new Packet(PacketType.ShipRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk((byte)Container.CursorCtrl.ShipLength), new BoolChunk(Container.CursorCtrl.IsShipVertical));
                 Container.NetCom.SendPacket(packet);
             }
             if (Input.IsKeyPressed(Key.Space))
@@ -95,7 +95,7 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
             {
-                Packet packet = new Packet(CommandType.AttackRequest, (int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y);
+                Packet packet = new Packet(PacketType.AttackRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y));
                 Container.NetCom.SendPacket(packet);
             }
         }
@@ -103,7 +103,7 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsKeyPressed(Key.Space))
             {
-                Container.NetCom.SendPacket(new Packet(CommandType.CutsceneFinished));
+                Container.NetCom.SendPacket(new Packet(PacketType.CutsceneFinished));
                 Container.Board.Attacks.Clear();
             }
         }

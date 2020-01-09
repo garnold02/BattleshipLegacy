@@ -1,7 +1,5 @@
-﻿using OpenTK;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BattleshipClient.Game.GameObjects;
-using System;
 
 namespace BattleshipClient.Game.Structure
 {
@@ -9,6 +7,7 @@ namespace BattleshipClient.Game.Structure
     {
         public string Name { get; }
         public byte ID { get; }
+        public int Score { get; set; }
         public Board Board { get; }
         public BoardPiece BoardClaim { get; set; }
         public List<Ship> Ships { get; }

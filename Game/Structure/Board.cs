@@ -1,4 +1,5 @@
-﻿using BattleshipClient.Game.GameObjects;
+﻿using BattleshipClient.Engine.Net;
+using BattleshipClient.Game.GameObjects;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -48,23 +49,24 @@ namespace BattleshipClient.Game.Structure
         {
             return Players.Find(p => p.ID == id);
         }
-        public void FillPlayerList(string[] data)
+        public void FillPlayerList(Chunk[] chunks)
         {
-            foreach (string playerData in data)
+            for (int i = 0; i < chunks.Length / 2; i++)
             {
-                byte id = (byte)(playerData[0]);
-                string name = playerData.Substring(1);
+                int pos = i * 2;
+                byte id = (chunks[pos] as ByteChunk).Data;
+                string name = (chunks[pos + 1] as StringChunk).Data;
 
                 Player player = new Player(this, name, id);
                 Players.Add(player);
+                PlayerRenderer playerRenderer = new PlayerRenderer(Container, player);
+                player.Renderer = playerRenderer;
+                Container.ObjManager.Add(playerRenderer);
+
                 if (name == localPlayerName)
                 {
                     LocalPlayer = player;
                 }
-
-                PlayerRenderer playerRenderer = new PlayerRenderer(Container, player);
-                player.Renderer = playerRenderer;
-                Container.ObjManager.Add(playerRenderer);
             }
         }
         public void CreateMissiles()

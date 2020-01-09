@@ -4,90 +4,119 @@ using System.Text;
 
 namespace BattleshipClient.Engine.Net
 {
-    struct Packet
+    class Packet
     {
-        const ushort BufferSize = 256;
+        public const ushort BufferSize = 512;
 
-        public CommandType Type { get; }
+        public PacketType Type { get; }
         public byte Length { get; }
         public byte[] Data { get; }
-        public byte[] Bytes
-        {
-            get
-            {
-                byte[] bytes = new byte[BufferSize];
-                bytes[0] = (byte)Type;
-                bytes[1] = Length;
-                for (int i = 2; i < Length; i++)
-                {
-                    bytes[i] = Data[i - 2];
-                }
-                return bytes;
-            }
-        }
         public Packet(byte[] rawData)
         {
-            Type = (CommandType)rawData[0];
+            Type = (PacketType)rawData[0];
             Length = rawData[1];
-            Data = new byte[Length - 2];
-            for (int i = 2; i < Length; i++)
+            Data = new byte[BufferSize];
+            for (int i = 0; i < Length; i++)
             {
-                Data[i - 2] = rawData[i];
+                Data[i] = rawData[i];
             }
         }
-        public Packet(CommandType type, params PacketChunk[] objects)
+        public Packet(PacketType type, params Chunk[] chunks)
         {
             Type = type;
-            List<byte> bytes = new List<byte>();
-            if (objects.Length > 0)
+            List<byte> bytes = new List<byte>
             {
-                for (int i = 0; i < objects.Length; i++)
+                (byte)Type
+            };
+            if (chunks.Length > 0)
+            {
+                for (int i = 0; i < chunks.Length; i++)
                 {
-                    PacketChunk chunkObject = objects[i];
-                    byte[] b = new byte[0];
-                    if (chunkObject.Type == typeof(string))
-                    {
-                        b = Encoding.ASCII.GetBytes(chunkObject.Data.ToString());
-                    }
-                    else if (chunkObject.Type == typeof(int))
-                    {
-                        b = BitConverter.GetBytes((int)chunkObject.Data);
-                    }
-
+                    Chunk chunkObject = chunks[i];
+                    bytes.Add((byte)chunkObject.type);
+                    byte[] b = SerializeChunkData(chunkObject);
                     bytes.Add((byte)b.Length);
                     bytes.AddRange(b);
                 }
             }
-            Length = (byte)(bytes.Count + 2);
+            Length = (byte)(bytes.Count + 1);
+            bytes.Insert(1, Length);
+            while (bytes.Count < BufferSize)
+            {
+                bytes.Add(0);
+            }
             Data = bytes.ToArray();
         }
-        public byte[][] GetChunks()
+        public Chunk[] GetChunks()
         {
-            List<byte[]> chunks = new List<byte[]>();
-            if (Data.Length >= 2)
+            List<Chunk> chunkList = new List<Chunk>();
+
+            if (Data.Length > 4 && Data[2] > 0)
             {
-                List<byte> currentByteArray = new List<byte>();
-                int currentLength = Data[0];
-                for (int i = 1; i < Data.Length; i++)
+                ChunkType chunkType = (ChunkType)Data[2];
+                byte chunkDataLength = Data[3];
+                List<byte> chunkByteList = new List<byte>();
+                for (int i = 4; i < Length + 1; i++)
                 {
-                    byte b = Data[i];
-                    if (currentByteArray.Count == currentLength)
+                    if (chunkByteList.Count < chunkDataLength)
                     {
-                        chunks.Add(currentByteArray.ToArray());
-                        currentByteArray = new List<byte>();
-                        currentLength = b;
+                        chunkByteList.Add(Data[i]);
                     }
                     else
                     {
-                        currentByteArray.Add(b);
+                        chunkList.Add(DeserializeChunk(chunkType, chunkByteList.ToArray()));
+                        if (i < Length - 1)
+                        {
+                            chunkType = (ChunkType)Data[i];
+                            chunkDataLength = Data[i + 1];
+                            chunkByteList.Clear();
+                            i++;
+                        }
                     }
                 }
-                if (currentByteArray.Count > 0)
-                {
-                    chunks.Add(currentByteArray.ToArray());
-                }
             }
-            return chunks.ToArray();
+            return chunkList.ToArray();
+        }
+        private Chunk DeserializeChunk(ChunkType type, byte[] data)
+        {
+            Chunk chunk = null;
+            switch (type)
+            {
+                case ChunkType.Int:
+                    chunk = new IntChunk(BitConverter.ToInt32(data, 0));
+                    break;
+                case ChunkType.Byte:
+                    chunk = new ByteChunk(data[0]);
+                    break;
+                case ChunkType.String:
+                    chunk = new StringChunk(Encoding.ASCII.GetString(data));
+                    break;
+                case ChunkType.Bool:
+                    chunk = new BoolChunk(BitConverter.ToBoolean(data, 0));
+                    break;
+            }
+            return chunk;
+        }
+        private byte[] SerializeChunkData(Chunk chunk)
+        {
+            byte[] bytes = null;
+            if (chunk is IntChunk intChunk)
+            {
+                bytes = BitConverter.GetBytes(intChunk.Data);
+            }
+            else if (chunk is ByteChunk byteChunk)
+            {
+                bytes = new byte[1] { byteChunk.Data };
+            }
+            else if (chunk is StringChunk stringChunk)
+            {
+                bytes = Encoding.ASCII.GetBytes(stringChunk.Data);
+            }
+            else if (chunk is BoolChunk boolChunk)
+            {
+                bytes = BitConverter.GetBytes(boolChunk.Data);
+            }
+            return bytes;
         }
     }
 }

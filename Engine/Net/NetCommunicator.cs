@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -37,8 +36,8 @@ namespace BattleshipClient.Engine.Net
             {
                 try
                 {
-                    tcpStream.Write(packet.Bytes, 0, 256);
-                    Log("Sent: {0}", Enum.GetName(typeof(CommandType), packet.Type));
+                    tcpStream.Write(packet.Data, 0, Packet.BufferSize);
+                    Log("Sent: {0}", Enum.GetName(typeof(PacketType), packet.Type));
                 }
                 catch (Exception e)
                 {
@@ -58,8 +57,8 @@ namespace BattleshipClient.Engine.Net
             {
                 while (tcpStream.DataAvailable)
                 {
-                    byte[] rawData = new byte[256];
-                    tcpStream.Read(rawData, 0, rawData.Length);
+                    byte[] rawData = new byte[Packet.BufferSize];
+                    tcpStream.Read(rawData, 0, Packet.BufferSize);
 
                     Packet packet = new Packet(rawData);
                     packetQueue.Enqueue(packet);
