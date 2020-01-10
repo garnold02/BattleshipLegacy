@@ -2,10 +2,10 @@
 {
     class Cell
     {
+        public bool IsHit { get; set; }
         public bool HasShip => Ship != null;
         public Board Board { get; }
-        Ship Ship { get; set; }
-        bool IsHit { get; set; }
+        public Ship Ship { get; set; }
 
         public Cell(Board board)
         {

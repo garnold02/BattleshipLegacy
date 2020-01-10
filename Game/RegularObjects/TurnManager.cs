@@ -126,7 +126,7 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void OnCinematicsEntered()
         {
-            Container.CameraCtrl.TargetZoom = 12;
+            Container.CameraCtrl.TargetZoom = 18;
             foreach (Player player in Container.Board.Players)
             {
                 player.ClearAttackIndicators();

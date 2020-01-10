@@ -75,13 +75,13 @@ namespace BattleshipClient.Game.Structure
             {
                 foreach (Player player in attack.Owners)
                 {
-                    float startX = player.BoardClaim.PositionX * PieceLength + PieceLength / 2 - FullSideLength / 2;
-                    float startY = player.BoardClaim.PositionY * PieceLength + PieceLength / 2 - FullSideLength / 2;
-                    float destX = attack.DestinationX - FullSideLength / 2 + 0.5f;
-                    float destY = attack.DestinationY - FullSideLength / 2 + 0.5f;
+                    float startX = player.BoardClaim.PositionX;
+                    float startY = player.BoardClaim.PositionY;
+                    float destX = attack.DestinationX;
+                    float destY = attack.DestinationY;
                     bool isColliding = attack.Owners.Count > 1;
 
-                    Missile missile = new Missile(Container, new Vector2(startX, startY), new Vector2(destX, destY), isColliding);
+                    Missile missile = new Missile(Container, player, new Vector2(startX, startY), new Vector2(destX, destY), isColliding);
                     Container.ObjManager.Add(missile);
                 }
             }

@@ -8,6 +8,7 @@ namespace BattleshipClient.Engine
 {
     class Utility
     {
+        private static Random randomGenerator = new Random();
         public static Vector3 Raycast(Vector3 rayOrigin, Vector3 rayDirection)
         {
             Vector3 planePoint = Vector3.Zero;
@@ -72,6 +73,10 @@ namespace BattleshipClient.Engine
         public static int IntFromString(string str)
         {
             return BitConverter.ToInt32(Encoding.ASCII.GetBytes(str), 0);
+        }
+        public static float RandomNormal()
+        {
+            return (float)randomGenerator.NextDouble() - 0.5f;
         }
     }
 }

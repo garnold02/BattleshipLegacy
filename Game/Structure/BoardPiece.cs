@@ -3,6 +3,7 @@
     class BoardPiece
     {
         public Board Board { get; }
+        public Player Owner { get; set; }
         public int PositionX { get; }
         public int PositionY { get; }
         public Cell[,] Cells { get; }

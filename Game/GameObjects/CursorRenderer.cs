@@ -96,10 +96,10 @@ namespace BattleshipClient.Game.GameObjects
                             0.04f, Container.CursorCtrl.ClaimPosition.Y * Container.Board.PieceLength - (Container.Board.FullSideLength / 2) + (Container.Board.PieceLength / 2));
                     break;
                 case TurnPhase.ShipPlacement:
-                    shipRenderer.SetProperties((int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical);
+                    shipRenderer.SetProperties((int)Container.CursorCtrl.Position.X, (int)Container.CursorCtrl.Position.Y, Container.CursorCtrl.ShipLength, Container.CursorCtrl.IsShipVertical, new bool[Container.CursorCtrl.ShipLength]);
                     break;
                 case TurnPhase.Strategy:
-                    strategyCursorRenderer.Transform.localPosition = new Vector3(Container.CursorCtrl.Position.X - Container.Board.FullSideLength/2 + 0.5f, 0.04f, Container.CursorCtrl.Position.Y - Container.Board.FullSideLength / 2 + 0.5f);
+                    strategyCursorRenderer.Transform.localPosition = new Vector3(Container.CursorCtrl.Position.X - Container.Board.FullSideLength / 2 + 0.5f, 0.04f, Container.CursorCtrl.Position.Y - Container.Board.FullSideLength / 2 + 0.5f);
                     break;
             }
         }

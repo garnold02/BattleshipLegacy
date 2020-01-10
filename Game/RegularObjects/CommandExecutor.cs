@@ -70,6 +70,7 @@ namespace BattleshipClient.Game.RegularObjects
                     {
                         int timestamp = (chunks[0] as IntChunk).Data;
                         Container.TurnManager.Advance(timestamp);
+                        //Console.WriteLine("ellbé: {0}", lbcount);
                     }
                     break;
                 case PacketType.PlayerList:
@@ -83,6 +84,7 @@ namespace BattleshipClient.Game.RegularObjects
                         byte x = (chunks[1] as ByteChunk).Data;
                         byte y = (chunks[2] as ByteChunk).Data;
                         player.BoardClaim = Container.Board.Pieces[x, y];
+                        player.BoardClaim.Owner = player;
 
                         if (player == Container.Board.LocalPlayer)
                         {

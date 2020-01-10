@@ -11,13 +11,11 @@ namespace BattleshipClient.Game.GameObjects
     {
         public Player Player { get; }
 
-        public readonly List<ShipRenderer> shipRenderers;
         public readonly List<MeshRenderer> attackRenderers;
 
         public PlayerRenderer(GameContainer container, Player player) : base(container)
         {
             Player = player;
-            shipRenderers = new List<ShipRenderer>();
             attackRenderers = new List<MeshRenderer>();
         }
         public override void OnAdded()
@@ -35,14 +33,12 @@ namespace BattleshipClient.Game.GameObjects
         }
         public override void Update(float delta)
         {
-
         }
         public void CreateShipRenderer(Ship ship)
         {
             ShipRenderer shipRenderer = new ShipRenderer(Container.Board);
+            ship.Renderer = shipRenderer;
             shipRenderer.SetProperties(ship);
-
-            shipRenderers.Add(shipRenderer);
         }
         public void CreateAttackRenderer(Attack attack)
         {
@@ -58,11 +54,18 @@ namespace BattleshipClient.Game.GameObjects
             attackRenderer.Transform.localPosition = new Vector3(attack.DestinationX - Container.Board.FullSideLength / 2 + 0.5f, 0.03f, attack.DestinationY - Container.Board.FullSideLength / 2 + 0.5f);
             attackRenderers.Add(attackRenderer);
         }
+        public void Refresh()
+        {
+            foreach (Ship ship in Player.Ships)
+            {
+                ship.Renderer.SetProperties(ship);
+            }
+        }
         private void RenderShips()
         {
-            foreach (ShipRenderer shipRenderer in shipRenderers)
+            foreach (Ship ship in Player.Ships)
             {
-                shipRenderer.Render();
+                ship.Renderer.Render();
             }
         }
         private void RenderAttacks()

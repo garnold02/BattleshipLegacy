@@ -7,77 +7,98 @@ namespace BattleshipClient.Engine.Rendering
     class ShipRenderer : Renderer
     {
         public Board Board { get; }
+        public Ship Ship { get; private set; }
         public Vector3 Position;
         public int Length { get; private set; }
         public bool IsVertical { get; private set; }
-
-        private readonly MeshRenderer frontRenderer;
-        private readonly MeshRenderer middleRenderer;
-        private readonly MeshRenderer backRenderer;
+        public bool[] HitValues { get; private set; }
+        private MeshRenderer[] renderers;
         public ShipRenderer(Board board)
         {
             Board = board;
-
-            frontRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_front"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
-            {
-                Material = new Material()
-                {
-                    Texture = Assets.Get<Texture>("shipFront")
-                }
-            };
-            middleRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_middle"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
-            {
-                Material = new Material()
-                {
-                    Texture = Assets.Get<Texture>("shipMiddle")
-                }
-            };
-            backRenderer = new MeshRenderer(Assets.Get<Mesh>("ship_back"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
-            {
-                Material = new Material()
-                {
-                    Texture = Assets.Get<Texture>("shipBack")
-                }
-            };
         }
         public void SetProperties(Ship from)
         {
-            SetProperties(from.PositionX, from.PositionY, from.Length, from.IsVertical);
+            Ship = from;
+            bool[] hitValues = new bool[from.Length];
+            for (int i = 0; i < from.Length; i++)
+            {
+                hitValues[i] = from.Cells[i].IsHit;
+            }
+            SetProperties(from.PositionX, from.PositionY, from.Length, from.IsVertical, hitValues);
         }
-        public void SetProperties(int positionX, int positionY, int length, bool isVertical)
+        public void SetProperties(int positionX, int positionY, int length, bool isVertical, bool[] hitValues)
         {
             Position = new Vector3(positionX - Board.FullSideLength / 2, -0.5f, positionY - Board.FullSideLength / 2);
             Length = length;
             IsVertical = isVertical;
+            HitValues = hitValues;
 
-            AdjustTransforms();
+            AdjustRenderers();
         }
         public override void Render()
         {
-            frontRenderer.Render();
-            for (int i = 0; i < Length - 2; i++)
+            for (int i = 0; i < Length; i++)
             {
-                middleRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : i + 1), Position.Y, Position.Z + 0.5f + (IsVertical ? i + 1 : 0));
-                middleRenderer.Render();
+                renderers[i].Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : i), Position.Y, Position.Z + 0.5f + (IsVertical ? i : 0));
+                renderers[i].Render();
             }
-            backRenderer.Render();
         }
         public override void Delete()
         {
-            frontRenderer.Delete();
-            middleRenderer.Delete();
-            backRenderer.Delete();
+            foreach (MeshRenderer renderer in renderers)
+            {
+                renderer.Delete();
+            }
         }
 
-        private void AdjustTransforms()
+        private void AdjustRenderers()
         {
-            frontRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f, Position.Y, Position.Z + 0.5f);
-            frontRenderer.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
-
-            middleRenderer.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? 0 : -MathHelper.Pi / 2, 0);
-
-            backRenderer.Transform.localPosition = new Vector3(Position.X + 0.5f + (IsVertical ? 0 : Length - 1), Position.Y, Position.Z + 0.5f + (IsVertical ? Length - 1 : 0));
-            backRenderer.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+            renderers = new MeshRenderer[Length];
+            for (int i = 0; i < Length; i++)
+            {
+                MeshRenderer r;
+                if (i == 0)
+                {
+                    string modelName = HitValues[i] ? "ship_front_ruined" : "ship_front";
+                    string textureName = HitValues[i] ? "shipFrontRuined" : "shipFront";
+                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                    {
+                        Material = new Material()
+                        {
+                            Texture = Assets.Get<Texture>(textureName)
+                        }
+                    };
+                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                }
+                else if (i == Length - 1)
+                {
+                    string modelName = HitValues[i] ? "ship_back_ruined" : "ship_back";
+                    string textureName = HitValues[i] ? "shipBackRuined" : "shipBack";
+                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                    {
+                        Material = new Material()
+                        {
+                            Texture = Assets.Get<Texture>(textureName)
+                        }
+                    };
+                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                }
+                else
+                {
+                    string modelName = HitValues[i] ? "ship_middle_ruined" : "ship_middle";
+                    string textureName = HitValues[i] ? "shipMiddleRuined" : "shipMiddle";
+                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                    {
+                        Material = new Material()
+                        {
+                            Texture = Assets.Get<Texture>(textureName)
+                        }
+                    };
+                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                }
+                renderers[i] = r;
+            }
         }
     }
 }
