@@ -55,16 +55,21 @@ namespace BattleshipClient.Engine.Net
 
             if (IsConnected)
             {
-                while (tcpStream.DataAvailable)
+                int fetched = 0;
+                while (tcpClient.Available % Packet.BufferSize == 0 && tcpClient.Available > 0)
                 {
                     byte[] rawData = new byte[Packet.BufferSize];
                     tcpStream.Read(rawData, 0, Packet.BufferSize);
 
                     Packet packet = new Packet(rawData);
                     packetQueue.Enqueue(packet);
+                    fetched++;
+                }
+                if (fetched > 0)
+                {
+                    Log("Fetched {0} packets.", fetched);
                 }
             }
-
             return packetQueue;
         }
 

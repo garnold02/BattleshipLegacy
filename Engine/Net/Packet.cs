@@ -6,15 +6,15 @@ namespace BattleshipClient.Engine.Net
 {
     class Packet
     {
-        public const ushort BufferSize = 512;
+        public const ushort BufferSize = 1024;
 
         public PacketType Type { get; }
-        public byte Length { get; }
+        public ushort Length { get; }
         public byte[] Data { get; }
         public Packet(byte[] rawData)
         {
             Type = (PacketType)rawData[0];
-            Length = rawData[1];
+            Length = BitConverter.ToUInt16(new byte[] { rawData[1], rawData[2] }, 0);
             Data = new byte[BufferSize];
             for (int i = 0; i < Length; i++)
             {
@@ -39,8 +39,10 @@ namespace BattleshipClient.Engine.Net
                     bytes.AddRange(b);
                 }
             }
-            Length = (byte)(bytes.Count + 1);
-            bytes.Insert(1, Length);
+            Length = (ushort)(bytes.Count + 2);
+            byte[] lengthBytes = BitConverter.GetBytes(Length);
+            bytes.Insert(1, lengthBytes[0]);
+            bytes.Insert(2, lengthBytes[1]);
             while (bytes.Count < BufferSize)
             {
                 bytes.Add(0);
@@ -51,12 +53,12 @@ namespace BattleshipClient.Engine.Net
         {
             List<Chunk> chunkList = new List<Chunk>();
 
-            if (Data.Length > 4 && Data[2] > 0)
+            if (Data.Length > 5 && Data[3] > 0)
             {
-                ChunkType chunkType = (ChunkType)Data[2];
-                byte chunkDataLength = Data[3];
+                ChunkType chunkType = (ChunkType)Data[3];
+                byte chunkDataLength = Data[4];
                 List<byte> chunkByteList = new List<byte>();
-                for (int i = 4; i < Length + 1; i++)
+                for (int i = 5; i < Length + 1; i++)
                 {
                     if (chunkByteList.Count < chunkDataLength)
                     {
