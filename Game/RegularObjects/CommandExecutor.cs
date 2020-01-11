@@ -51,7 +51,7 @@ namespace BattleshipClient.Game.RegularObjects
                         bool isVertical = (chunks[3] as BoolChunk).Data;
                         Ship ship = new Ship(Container.Board.LocalPlayer, x, y, length, isVertical);
                         Container.Board.LocalPlayer.AddShip(ship);
-                        Container.CursorCtrl.ShipLength++;
+                        Container.CursorCtrl.ShipLength = (chunks[4] as IntChunk).Data;
                     }
                     break;
                 case PacketType.ShipRequestDenied:

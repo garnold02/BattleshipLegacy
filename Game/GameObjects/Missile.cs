@@ -119,7 +119,7 @@ namespace BattleshipClient.Game.GameObjects
         }
         private void HandleDestruction()
         {
-            if (Transform.localPosition.Y < -2)
+            if (Transform.localPosition.Y < -1)
             {
                 Container.ObjManager.Remove(this);
                 Container.ObjManager.Remove(particleSystem);
@@ -128,8 +128,17 @@ namespace BattleshipClient.Game.GameObjects
                 int py = (int)Destination.Y / Container.Board.PieceLength;
                 int rx = (int)Destination.X % Container.Board.PieceLength;
                 int ry = (int)Destination.Y % Container.Board.PieceLength;
-                Container.Board.Pieces[px, py].Cells[rx, ry].IsHit = true;
-                Container.Board.Pieces[px, py].Owner?.Renderer.Refresh();
+
+                BoardPiece piece = Container.Board.Pieces[px, py];
+                Cell cell = piece.Cells[rx, ry];
+                cell.IsHit = true;
+                if (cell.HasShip)
+                {
+                    Explosion explosion = new Explosion(Container, new Vector3(renderDestination.X, 0.5f, renderDestination.Y));
+                    Container.ObjManager.Add(explosion);
+
+                    piece.Owner.Renderer.Refresh();
+                }
             }
         }
     }
