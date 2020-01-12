@@ -7,7 +7,7 @@ namespace BattleshipClient.Game.GameObjects
     {
         public GameContainer Container { get; }
         public Transform Transform { get; set; } = Transform.Identity;
-        public int Depth { get; protected set; } = 0;
+        public int Depth { get; set; } = 0;
 
         public GameObject(GameContainer container)
         {

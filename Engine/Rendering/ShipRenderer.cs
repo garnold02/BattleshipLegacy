@@ -55,49 +55,66 @@ namespace BattleshipClient.Engine.Rendering
         private void AdjustRenderers()
         {
             renderers = new MeshRenderer[Length];
-            for (int i = 0; i < Length; i++)
+            if (Length == 1)
             {
-                MeshRenderer r;
-                if (i == 0)
+                MeshRenderer r = new MeshRenderer(Assets.Get<Mesh>("oil_rig"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
                 {
-                    string modelName = HitValues[i] ? "ship_front_ruined" : "ship_front";
-                    string textureName = HitValues[i] ? "shipFrontRuined" : "shipFront";
-                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                    Material = new Material()
                     {
-                        Material = new Material()
-                        {
-                            Texture = Assets.Get<Texture>(textureName)
-                        }
-                    };
-                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
-                }
-                else if (i == Length - 1)
+                        Opaque = false,
+                        Texture = Assets.Get<Texture>("oilRig")
+                    }
+                };
+                r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                renderers[0] = r;
+            }
+            else
+            {
+                for (int i = 0; i < Length; i++)
                 {
-                    string modelName = HitValues[i] ? "ship_back_ruined" : "ship_back";
-                    string textureName = HitValues[i] ? "shipBackRuined" : "shipBack";
-                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                    MeshRenderer r;
+                    if (i == 0)
                     {
-                        Material = new Material()
+                        string modelName = HitValues[i] ? "ship_front_ruined" : "ship_front";
+                        string textureName = HitValues[i] ? "shipFrontRuined" : "shipFront";
+                        r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
                         {
-                            Texture = Assets.Get<Texture>(textureName)
-                        }
-                    };
-                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
-                }
-                else
-                {
-                    string modelName = HitValues[i] ? "ship_middle_ruined" : "ship_middle";
-                    string textureName = HitValues[i] ? "shipMiddleRuined" : "shipMiddle";
-                    r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                            Material = new Material()
+                            {
+                                Opaque = true,
+                                Texture = Assets.Get<Texture>(textureName)
+                            }
+                        };
+                        r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                    }
+                    else if (i == Length - 1)
                     {
-                        Material = new Material()
+                        string modelName = HitValues[i] ? "ship_back_ruined" : "ship_back";
+                        string textureName = HitValues[i] ? "shipBackRuined" : "shipBack";
+                        r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
                         {
-                            Texture = Assets.Get<Texture>(textureName)
-                        }
-                    };
-                    r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                            Material = new Material()
+                            {
+                                Texture = Assets.Get<Texture>(textureName)
+                            }
+                        };
+                        r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                    }
+                    else
+                    {
+                        string modelName = HitValues[i] ? "ship_middle_ruined" : "ship_middle";
+                        string textureName = HitValues[i] ? "shipMiddleRuined" : "shipMiddle";
+                        r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                        {
+                            Material = new Material()
+                            {
+                                Texture = Assets.Get<Texture>(textureName)
+                            }
+                        };
+                        r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);
+                    }
+                    renderers[i] = r;
                 }
-                renderers[i] = r;
             }
         }
     }

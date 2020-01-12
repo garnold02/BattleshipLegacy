@@ -110,6 +110,7 @@
     <Compile Include="Game\GameObjects\Explosion.cs" />
     <Compile Include="Game\GameObjects\Missile.cs" />
     <Compile Include="Game\GameObjects\ParticleSystem.cs" />
+    <Compile Include="Game\GameObjects\ShipRendererObject.cs" />
     <Compile Include="Game\RegularObjects\CameraController.cs" />
     <Compile Include="Game\RegularObjects\CommandExecutor.cs" />
     <Compile Include="Game\GameContainer.cs" />
