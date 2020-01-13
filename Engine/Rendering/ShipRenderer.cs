@@ -8,7 +8,7 @@ namespace BattleshipClient.Engine.Rendering
     {
         public Board Board { get; }
         public Ship Ship { get; private set; }
-        public Vector3 Position;
+        public Vector3 Position { get; private set; }
         public int Length { get; private set; }
         public bool IsVertical { get; private set; }
         public bool[] HitValues { get; private set; }
@@ -29,7 +29,7 @@ namespace BattleshipClient.Engine.Rendering
         }
         public void SetProperties(int positionX, int positionY, int length, bool isVertical, bool[] hitValues)
         {
-            Position = new Vector3(positionX - Board.FullSideLength / 2, -0.5f, positionY - Board.FullSideLength / 2);
+            Position = new Vector3(positionX - Board.FullSideLength / 2, length == 1 ? 0 : -0.5f, positionY - Board.FullSideLength / 2);
             Length = length;
             IsVertical = isVertical;
             HitValues = hitValues;
@@ -61,7 +61,6 @@ namespace BattleshipClient.Engine.Rendering
                 {
                     Material = new Material()
                     {
-                        Opaque = false,
                         Texture = Assets.Get<Texture>("oilRig")
                     }
                 };

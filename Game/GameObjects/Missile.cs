@@ -94,6 +94,7 @@ namespace BattleshipClient.Game.GameObjects
         }
         public override void OnRemoved()
         {
+            Container.TurnManager.activeMissiles.Remove(this);
             //Container.ObjManager.Remove(particleSystem);
         }
         public override void Update(float delta)

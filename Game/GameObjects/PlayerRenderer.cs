@@ -63,6 +63,10 @@ namespace BattleshipClient.Game.GameObjects
         }
         private void RenderShips()
         {
+            foreach (Ship ship in Player.Ships)
+            {
+                ship.Renderer.Render();
+            }
         }
         private void RenderAttacks()
         {

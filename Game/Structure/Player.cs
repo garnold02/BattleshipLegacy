@@ -8,6 +8,7 @@ namespace BattleshipClient.Game.Structure
         public string Name { get; }
         public byte ID { get; }
         public int Score { get; set; }
+        public int Oil { get; set; }
         public Board Board { get; }
         public BoardPiece BoardClaim { get; set; }
         public List<Ship> Ships { get; }

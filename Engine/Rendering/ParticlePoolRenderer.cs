@@ -71,7 +71,7 @@ namespace BattleshipClient.Engine.Rendering
             mesh = Assets.Get<Mesh>("particle");
             texture = Assets.Get<Texture>(Subpool.TextureName);
             vertexShader = Assets.Get<Shader>("v_billboard");
-            fragmentShader = Assets.Get<Shader>("f_unlit");
+            fragmentShader = Assets.Get<Shader>("f_particle");
         }
         private void CreateGL()
         {

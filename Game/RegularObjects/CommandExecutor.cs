@@ -37,11 +37,30 @@ namespace BattleshipClient.Game.RegularObjects
                     }
                     break;
                 case PacketType.JoinRequestDenied:
-                    //TODO
+                    {
+                        //TODO
+                    }
+                    break;
+                case PacketType.Prices:
+                    {
+                        //TODO
+                    }
                     break;
                 case PacketType.LandRequestAccepted:
+                    {
+
+                    }
                     break;
                 case PacketType.LandRequestDenied:
+                    {
+
+                    }
+                    break;
+                case PacketType.InitiateShipPlacement:
+                    {
+                        byte initialLength = (chunks[0] as ByteChunk).Data;
+                        Container.TurnManager.EnableShipPlacement(initialLength);
+                    }
                     break;
                 case PacketType.ShipRequestAccepted:
                     {
@@ -51,17 +70,29 @@ namespace BattleshipClient.Game.RegularObjects
                         bool isVertical = (chunks[3] as BoolChunk).Data;
                         Ship ship = new Ship(Container.Board.LocalPlayer, x, y, length, isVertical);
                         Container.Board.LocalPlayer.AddShip(ship);
-                        //Container.CursorCtrl.ShipLength = (chunks[4] as IntChunk).Data;
-                        Container.CursorCtrl.ShipLength = 1;
+                        Container.CursorCtrl.ShipLength = (chunks[4] as ByteChunk).Data;
                     }
                     break;
                 case PacketType.ShipRequestDenied:
+                    {
+
+                    }
+                    break;
+                case PacketType.PurchaseRequestAccepted:
+                    {
+
+                    }
+                    break;
+                case PacketType.PurchaseRequestDenied:
+                    {
+
+                    }
                     break;
                 case PacketType.AttackRequestAccepted:
                     {
                         int x = (chunks[0] as ByteChunk).Data;
                         int y = (chunks[1] as ByteChunk).Data;
-                        Attack attack = new Attack(null, x, y, false);
+                        Attack attack = new Attack(null, null, x, y, false);
                         Container.Board.LocalPlayer.AddAttackIndicator(attack);
                     }
                     break;
@@ -71,7 +102,6 @@ namespace BattleshipClient.Game.RegularObjects
                     {
                         int timestamp = (chunks[0] as IntChunk).Data;
                         Container.TurnManager.Advance(timestamp);
-                        //Console.WriteLine("ellbé: {0}", lbcount);
                     }
                     break;
                 case PacketType.PlayerList:
@@ -95,49 +125,29 @@ namespace BattleshipClient.Game.RegularObjects
                     break;
                 case PacketType.AttackBroadcast:
                     {
-                        List<Player> playerList = new List<Player>();
+                        List<Player> players = new List<Player>();
+                        List<StrategyOption> playerAttackTypes = new List<StrategyOption>();
 
-                        int state = 0;  //0 = fetch xyh; 1 = id chain length; 2 = fetch ids; 3 = create attack
-                        byte x = 0, y = 0, chainLength = 0;
-                        bool hit = false;
-                        for (int i = 0; i < chunks.Length; i++)
+                        byte x = (chunks[0] as ByteChunk).Data;
+                        byte y = (chunks[1] as ByteChunk).Data;
+                        bool hit = (chunks[2] as BoolChunk).Data;
+                        byte playerCount = (chunks[3] as ByteChunk).Data;
+                        for (int i = 0; i < playerCount; i++)
                         {
-                            switch (state)
-                            {
-                                case 0:
-                                    {
-                                        x = (chunks[i] as ByteChunk).Data;
-                                        y = (chunks[i + 1] as ByteChunk).Data;
-                                        hit = (chunks[i + 2] as BoolChunk).Data;
-                                        i += 2;
-                                        state = 1;
-                                    }
-                                    continue;
-                                case 1:
-                                    {
-                                        chainLength = (chunks[i] as ByteChunk).Data;
-                                        state = 2;
-                                    }
-                                    continue;
-                                case 2:
-                                    {
-                                        if (playerList.Count < chainLength)
-                                        {
-                                            byte id = (chunks[i] as ByteChunk).Data;
-                                            Player player = Container.Board.GetPlayerByID(id);
-                                            playerList.Add(player);
-                                            if (playerList.Count == chainLength)
-                                            {
-                                                Attack attack = new Attack(playerList, x, y, hit);
-                                                Container.Board.Attacks.Add(attack);
-                                                playerList = new List<Player>();
-                                                state = 0;
-                                            }
-                                        }
-                                    }
-                                    break;
-                            }
+                            int pos = 4 + i * 2;
+                            byte id = (chunks[pos + 0] as ByteChunk).Data;
+                            StrategyOption type = (StrategyOption)(chunks[pos + 1] as ByteChunk).Data;
+
+                            players.Add(Container.Board.GetPlayerByID(id));
+                            playerAttackTypes.Add(type);
                         }
+                        Attack attack = new Attack(players, playerAttackTypes, x, y, hit);
+                        Container.Board.Attacks.Add(attack);
+                    }
+                    break;
+                case PacketType.RepairBroadcast:
+                    {
+
                     }
                     break;
                 case PacketType.ShipSunk:
@@ -159,6 +169,12 @@ namespace BattleshipClient.Game.RegularObjects
                         }
                     }
                     break;
+                case PacketType.Oil:
+                    {
+                        Container.Board.LocalPlayer.Oil = (chunks[0] as IntChunk).Data;
+                        Container.UI.OilText.Text = string.Format("{0} liter olaj", Container.Board.LocalPlayer.Oil);
+                    }
+                    break;
                 case PacketType.OutOfGame:
                     {
                         Container.TurnManager.EnterNeutral();
@@ -167,22 +183,6 @@ namespace BattleshipClient.Game.RegularObjects
                 case PacketType.EndOfGame:
                     break;
                 case PacketType.Disconnect:
-                    break;
-
-                case PacketType.JoinRequest:
-                    //Irrelevant
-                    break;
-                case PacketType.ShipRequest:
-                    //Irrelevant
-                    break;
-                case PacketType.LandRequest:
-                    //Irrelevant
-                    break;
-                case PacketType.AttackRequest:
-                    //Irrelevant
-                    break;
-                case PacketType.CutsceneFinished:
-                    //Irrelevant
                     break;
             }
         }

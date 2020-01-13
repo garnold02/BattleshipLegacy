@@ -83,6 +83,7 @@ namespace BattleshipClient.Game.Structure
 
                     Missile missile = new Missile(Container, player, new Vector2(startX, startY), new Vector2(destX, destY), isColliding);
                     Container.ObjManager.Add(missile);
+                    Container.TurnManager.activeMissiles.Add(missile);
                 }
             }
         }

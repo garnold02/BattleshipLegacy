@@ -10,6 +10,10 @@ namespace BattleshipClient.Engine.Rendering
     {
         public Mesh Mesh { get; set; }
         public Material Material { get; set; } = Material.Default;
+
+        public bool UseCustomProjection { get; set; }
+        public Matrix4 CustomProjection { get; set; }
+
         private readonly List<Shader> attachedShaders;
         private readonly Dictionary<string, int> uniformLocations;
         private int glProgram;
@@ -65,7 +69,9 @@ namespace BattleshipClient.Engine.Rendering
             SetUniformMatrix4("translation", Transform.TranslationMatrix);
             SetUniformMatrix4("rotation", Transform.RotationMatrix);
             SetUniformMatrix4("scale", Transform.ScaleMatrix);
-            SetUniformMatrix4("projection", Root.GameContainer.CameraCtrl.Camera.Matrix);
+
+            Matrix4 projection = UseCustomProjection ? CustomProjection : Root.GameContainer.CameraCtrl.Camera.Matrix;
+            SetUniformMatrix4("projection", projection);
 
             //Material
             SetUniformVector4("matColor", new Vector4(Material.Color.R, Material.Color.G, Material.Color.B, Material.Color.A));
