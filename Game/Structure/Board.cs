@@ -73,12 +73,14 @@ namespace BattleshipClient.Game.Structure
         {
             foreach (StrategyAction action in Actions)
             {
+                Player owner = action.Owner;
                 float startX = action.Owner.BoardClaim.PositionX;
                 float startY = action.Owner.BoardClaim.PositionY;
                 float destX = action.DestinationX;
                 float destY = action.DestinationY;
+                bool isHit = action.IsHit;
 
-                Missile missile = new Missile(Container, action.Owner, new Vector2(startX, startY), new Vector2(destX, destY));
+                Missile missile = new Missile(Container, owner, new Vector2(startX, startY), new Vector2(destX, destY), isHit);
                 Container.ObjManager.Add(missile);
                 Container.TurnManager.activeMissiles.Add(missile);
             }

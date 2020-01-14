@@ -17,10 +17,11 @@ namespace BattleshipClient.Game.RegularObjects
         public UIPanel LowerButton { get; }
         public UIPanel LeftButton { get; }
 
-        private Vector2 desiredUpperPosition;
-        private Vector2 desiredRightPosition;
-        private Vector2 desiredLowerPosition;
-        private Vector2 desiredLeftPosition;
+        public bool MenuInteractionEnabled { get; set; } = true;
+        public Vector2 desiredUpperPosition;
+        public Vector2 desiredRightPosition;
+        public Vector2 desiredLowerPosition;
+        public Vector2 desiredLeftPosition;
         private byte currentButton;
 
         public UI(GameContainer container) : base(container)
@@ -79,10 +80,13 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void UpdateMenuPositions()
         {
-            desiredUpperPosition = Vector2.Zero;
-            desiredRightPosition = Vector2.Zero;
-            desiredLowerPosition = Vector2.Zero;
-            desiredLeftPosition = Vector2.Zero;
+            if (MenuInteractionEnabled)
+            {
+                desiredUpperPosition = Vector2.Zero;
+                desiredRightPosition = Vector2.Zero;
+                desiredLowerPosition = Vector2.Zero;
+                desiredLeftPosition = Vector2.Zero;
+            }
 
             Vector2 clipPosition = Utility.ScreenToClip(Container, Container.MousePosition) * new Vector2(Container.AspectRatio, 1);
             float angle = (float)Math.Atan2(clipPosition.Y, clipPosition.X) - MathHelper.PiOver4;
@@ -93,26 +97,38 @@ namespace BattleshipClient.Game.RegularObjects
             if (angle > 0 && angle < MathHelper.PiOver2)
             {
                 //Upper quadrant
-                desiredUpperPosition = new Vector2(0, (float)Math.Sqrt(clipPosition.Y) / 16);
-                currentButton = 0;
+                if (MenuInteractionEnabled)
+                {
+                    desiredUpperPosition = new Vector2(0, GetButtonDistance(clipPosition.Y));
+                    currentButton = 0;
+                }
             }
             else if (angle > MathHelper.PiOver2 && angle < MathHelper.Pi)
             {
                 //Left quadrant
-                desiredLeftPosition = new Vector2(-(float)Math.Sqrt(-clipPosition.X) / 16, 0);
-                currentButton = 1;
+                if (MenuInteractionEnabled)
+                {
+                    desiredLeftPosition = new Vector2(-GetButtonDistance(-clipPosition.X), 0);
+                    currentButton = 3;
+                }
             }
             else if (angle > MathHelper.Pi && angle < MathHelper.ThreePiOver2)
             {
                 //Lower quadrant
-                desiredLowerPosition = new Vector2(0, -(float)Math.Sqrt(-clipPosition.Y) / 16);
-                currentButton = 2;
+                if (MenuInteractionEnabled)
+                {
+                    desiredLowerPosition = new Vector2(0, -GetButtonDistance(-clipPosition.Y));
+                    currentButton = 2;
+                }
             }
             else
             {
                 //Right quadrant
-                desiredRightPosition = new Vector2((float)Math.Sqrt(clipPosition.X) / 16, 0);
-                currentButton = 3;
+                if (MenuInteractionEnabled)
+                {
+                    desiredRightPosition = new Vector2(GetButtonDistance(clipPosition.X), 0);
+                    currentButton = 1;
+                }
             }
 
             UpperButton.Position += (desiredUpperPosition - UpperButton.Position) * 0.4f;
@@ -130,36 +146,43 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void ButtonFunctionality()
         {
-            if (Input.IsMouseButtonPressed(MouseButton.Left))
+            if (Input.IsMouseButtonPressed(MouseButton.Left) && MenuInteractionEnabled)
             {
                 switch (currentButton)
                 {
                     case 0:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Repair);
-                            desiredUpperPosition = new Vector2(0, 0.2f);
+                            UpperButton.Position = new Vector2(0, 0.1f);
                         }
                         break;
                     case 1:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Big);
-                            desiredRightPosition = new Vector2(0.2f, 0);
+                            RightButton.Position = new Vector2(0.1f, 0);
                         }
                         break;
                     case 2:
                         {
                             Container.TurnManager.Ready();
-                            desiredUpperPosition = new Vector2(0, -0.2f);
+                            Container.TurnManager.ToggleMenu();
                         }
                         break;
                     case 3:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Regular);
-                            desiredRightPosition = new Vector2(-0.2f, 0);
+                            LeftButton.Position = new Vector2(-0.1f, 0);
                         }
                         break;
                 }
             }
+        }
+        private float GetButtonDistance(float clipPos)
+        {
+            float a = 6f;
+            float b = 2.8f;
+            float c = 16f;
+            return (float)Math.Pow(2, -Math.Pow((a * clipPos - b), 2)) / c;
         }
     }
 }

@@ -25,6 +25,7 @@ namespace BattleshipClient.Game.GameObjects
         public Player Owner { get; }
         public Vector2 Origin { get; }
         public Vector2 Destination { get; }
+        public bool IsHit { get; }
         private float Height => 100 / tileDistance * heightModifier;
 
         private Vector2 renderOrigin;
@@ -37,11 +38,12 @@ namespace BattleshipClient.Game.GameObjects
 
         private float time;
 
-        public Missile(GameContainer container, Player owner, Vector2 origin, Vector2 destination) : base(container)
+        public Missile(GameContainer container, Player owner, Vector2 origin, Vector2 destination, bool isHit) : base(container)
         {
             Owner = owner;
             Origin = origin;
             Destination = destination;
+            IsHit = isHit;
 
             float wsX = Owner.BoardClaim.PositionX * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;
             float wsY = Owner.BoardClaim.PositionY * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;
@@ -122,21 +124,23 @@ namespace BattleshipClient.Game.GameObjects
             {
                 Container.ObjManager.Remove(this);
                 Container.ObjManager.Remove(particleSystem);
-
-                int px = (int)Destination.X / Container.Board.PieceLength;
-                int py = (int)Destination.Y / Container.Board.PieceLength;
-                int rx = (int)Destination.X % Container.Board.PieceLength;
-                int ry = (int)Destination.Y % Container.Board.PieceLength;
-
-                BoardPiece piece = Container.Board.Pieces[px, py];
-                Cell cell = piece.Cells[rx, ry];
-                cell.IsHit = true;
-                if (cell.HasShip)
+                if (IsHit)
                 {
-                    Explosion explosion = new Explosion(Container, new Vector3(renderDestination.X, 0.5f, renderDestination.Y));
-                    Container.ObjManager.Add(explosion);
+                    int px = (int)Destination.X / Container.Board.PieceLength;
+                    int py = (int)Destination.Y / Container.Board.PieceLength;
+                    int rx = (int)Destination.X % Container.Board.PieceLength;
+                    int ry = (int)Destination.Y % Container.Board.PieceLength;
 
-                    piece.Owner.Renderer.Refresh();
+                    BoardPiece piece = Container.Board.Pieces[px, py];
+                    Cell cell = piece.Cells[rx, ry];
+                    cell.IsHit = true;
+                    if (cell.HasShip)
+                    {
+                        Explosion explosion = new Explosion(Container, new Vector3(renderDestination.X, 0.5f, renderDestination.Y));
+                        Container.ObjManager.Add(explosion);
+
+                        cell.Ship.Renderer.SetProperties(cell.Ship);
+                    }
                 }
             }
         }

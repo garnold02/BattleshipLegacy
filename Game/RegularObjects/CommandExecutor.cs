@@ -89,7 +89,7 @@ namespace BattleshipClient.Game.RegularObjects
 
                     }
                     break;
-                case PacketType.AttackRequestAccepted:
+                case PacketType.ActionRequestAccepted:
                     {
                         byte x = (chunks[0] as ByteChunk).Data;
                         byte y = (chunks[1] as ByteChunk).Data;
@@ -97,7 +97,7 @@ namespace BattleshipClient.Game.RegularObjects
                         Container.Board.LocalPlayer.AddAttackIndicator(attack);
                     }
                     break;
-                case PacketType.AttackRequestDenied:
+                case PacketType.ActionRequestDenied:
                     break;
                 case PacketType.AdvanceTurn:
                     {

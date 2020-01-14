@@ -2,10 +2,12 @@
 using BattleshipClient.Engine.Net;
 using BattleshipClient.Game.GameObjects;
 using BattleshipClient.Game.Structure;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BattleshipClient.Game.RegularObjects
 {
@@ -28,6 +30,7 @@ namespace BattleshipClient.Game.RegularObjects
             switch (Phase)
             {
                 case TurnPhase.Neutral:
+                    NeutralLogic();
                     break;
                 case TurnPhase.LandClaiming:
                     LandClaimingLogic();
@@ -98,7 +101,50 @@ namespace BattleshipClient.Game.RegularObjects
             Packet packet = new Packet(PacketType.ReadyRequest);
             Container.NetCom.SendPacket(packet);
         }
-
+        public void ToggleMenu()
+        {
+            switch (IsMenuEnabled)
+            {
+                case true:
+                    {
+                        Task.Run(BeginClosingMenu);
+                    }
+                    break;
+                case false:
+                    {
+                        Task.Run(BeginOpeningMenu);
+                    }
+                    break;
+            }
+        }
+        private async Task BeginOpeningMenu()
+        {
+            IsMenuEnabled = true;
+            Container.UI.MenuInteractionEnabled = false;
+            Container.UI.UpperButton.Position = new Vector2(0, 1);
+            Container.UI.RightButton.Position = new Vector2(1, 0);
+            Container.UI.LowerButton.Position = new Vector2(0, -1);
+            Container.UI.LeftButton.Position = new Vector2(-1, 0);
+            await Task.Delay(100);
+            Container.UI.MenuInteractionEnabled = true;
+        }
+        private async Task BeginClosingMenu()
+        {
+            Container.UI.MenuInteractionEnabled = false;
+            Container.UI.desiredUpperPosition = new Vector2(0, 1);
+            Container.UI.desiredRightPosition = new Vector2(1, 0);
+            Container.UI.desiredLowerPosition = new Vector2(0, -1);
+            Container.UI.desiredLeftPosition = new Vector2(-1, 0);
+            await Task.Delay(100);
+            IsMenuEnabled = false;
+        }
+        private void NeutralLogic()
+        {
+            if(Input.IsKeyPressed(Key.E))
+            {
+                ToggleMenu();
+            }
+        }
         private void LandClaimingLogic()
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left))
@@ -125,22 +171,12 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left) && !Container.TurnManager.IsMenuEnabled)
             {
-                Packet packet = new Packet(PacketType.AttackRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk(0));
+                Packet packet = new Packet(PacketType.ActionRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk(0));
                 Container.NetCom.SendPacket(packet);
             }
             if (Input.IsKeyPressed(Key.E))
             {
-                IsMenuEnabled = !IsMenuEnabled;
-            }
-            if (Input.IsKeyPressed(Key.Number1))
-            {
-                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)ActionType.Regular));
-                Container.NetCom.SendPacket(packet);
-            }
-            if (Input.IsKeyPressed(Key.Number2))
-            {
-                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)ActionType.Big));
-                Container.NetCom.SendPacket(packet);
+                ToggleMenu();
             }
         }
         private void CinematicsLogic()
