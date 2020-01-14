@@ -17,7 +17,7 @@ namespace BattleshipClient.Game.Structure
         public BoardPiece[,] Pieces { get; }
         public List<Player> Players { get; }
         public Player LocalPlayer { get; private set; }
-        public List<Attack> Attacks { get; }
+        public List<StrategyAction> Actions { get; }
 
         private readonly string localPlayerName;
 
@@ -34,7 +34,7 @@ namespace BattleshipClient.Game.Structure
             }
 
             Players = new List<Player>();
-            Attacks = new List<Attack>();
+            Actions = new List<StrategyAction>();
             SideLength = sideLength;
             FullSideLength = sideLength * pieceSideLength;
             PieceLength = pieceSideLength;
@@ -71,20 +71,16 @@ namespace BattleshipClient.Game.Structure
         }
         public void CreateMissiles()
         {
-            foreach (Attack attack in Attacks)
+            foreach (StrategyAction action in Actions)
             {
-                foreach (Player player in attack.Owners)
-                {
-                    float startX = player.BoardClaim.PositionX;
-                    float startY = player.BoardClaim.PositionY;
-                    float destX = attack.DestinationX;
-                    float destY = attack.DestinationY;
-                    bool isColliding = attack.Owners.Count > 1;
+                float startX = action.Owner.BoardClaim.PositionX;
+                float startY = action.Owner.BoardClaim.PositionY;
+                float destX = action.DestinationX;
+                float destY = action.DestinationY;
 
-                    Missile missile = new Missile(Container, player, new Vector2(startX, startY), new Vector2(destX, destY), isColliding);
-                    Container.ObjManager.Add(missile);
-                    Container.TurnManager.activeMissiles.Add(missile);
-                }
+                Missile missile = new Missile(Container, action.Owner, new Vector2(startX, startY), new Vector2(destX, destY));
+                Container.ObjManager.Add(missile);
+                Container.TurnManager.activeMissiles.Add(missile);
             }
         }
     }

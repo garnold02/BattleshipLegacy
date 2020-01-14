@@ -4,6 +4,5 @@
              xmlns:local="clr-namespace:BattleshipClient"
              StartupUri="ConnectWindow.xaml">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>

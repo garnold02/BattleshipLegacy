@@ -7,6 +7,7 @@ namespace BattleshipClient.Engine.UI
 {
     abstract class UIElement
     {
+        public bool IsVisible { get; set; } = true;
         public Vector2 ActualPosition => (Position * new Vector2(Manager.Container.Width / 2, Manager.Container.Height / 2) - Pivot * new Vector2(Scale.X / 2, Scale.Y / 2));
         public UIManager Manager { get; }
 
@@ -22,9 +23,12 @@ namespace BattleshipClient.Engine.UI
         public abstract void Arrange();
         public void Render()
         {
-            foreach (Renderer renderer in renderers)
+            if(IsVisible)
             {
-                renderer.Render();
+                foreach (Renderer renderer in renderers)
+                {
+                    renderer.Render();
+                }
             }
         }
     }

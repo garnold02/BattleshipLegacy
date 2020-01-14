@@ -17,7 +17,10 @@ namespace BattleshipClient.Game.RegularObjects
 
         public override void Update(float delta)
         {
-            SetPositionOnBoard();
+            if(!Container.TurnManager.IsMenuEnabled)
+            {
+                SetPositionOnBoard();
+            }
         }
         private void SetPositionOnBoard()
         {

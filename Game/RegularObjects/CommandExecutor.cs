@@ -90,9 +90,9 @@ namespace BattleshipClient.Game.RegularObjects
                     break;
                 case PacketType.AttackRequestAccepted:
                     {
-                        int x = (chunks[0] as ByteChunk).Data;
-                        int y = (chunks[1] as ByteChunk).Data;
-                        Attack attack = new Attack(null, null, x, y, false);
+                        byte x = (chunks[0] as ByteChunk).Data;
+                        byte y = (chunks[1] as ByteChunk).Data;
+                        StrategyAction attack = new StrategyAction(x, y, false, null, ActionType.Regular);
                         Container.Board.LocalPlayer.AddAttackIndicator(attack);
                     }
                     break;
@@ -123,31 +123,21 @@ namespace BattleshipClient.Game.RegularObjects
                         }
                     }
                     break;
-                case PacketType.AttackBroadcast:
+                case PacketType.ActionBroadcast:
                     {
                         List<Player> players = new List<Player>();
-                        List<StrategyOption> playerAttackTypes = new List<StrategyOption>();
+                        List<ActionType> playerAttackTypes = new List<ActionType>();
 
                         byte x = (chunks[0] as ByteChunk).Data;
                         byte y = (chunks[1] as ByteChunk).Data;
                         bool hit = (chunks[2] as BoolChunk).Data;
-                        byte playerCount = (chunks[3] as ByteChunk).Data;
-                        for (int i = 0; i < playerCount; i++)
-                        {
-                            int pos = 4 + i * 2;
-                            byte id = (chunks[pos + 0] as ByteChunk).Data;
-                            StrategyOption type = (StrategyOption)(chunks[pos + 1] as ByteChunk).Data;
+                        ActionType actionType = (ActionType)(chunks[3] as ByteChunk).Data;
+                        byte id = (chunks[4] as ByteChunk).Data;
 
-                            players.Add(Container.Board.GetPlayerByID(id));
-                            playerAttackTypes.Add(type);
-                        }
-                        Attack attack = new Attack(players, playerAttackTypes, x, y, hit);
-                        Container.Board.Attacks.Add(attack);
-                    }
-                    break;
-                case PacketType.RepairBroadcast:
-                    {
+                        Player player = Container.Board.GetPlayerByID(id);
 
+                        StrategyAction action = new StrategyAction(x, y, hit, player, actionType);
+                        Container.Board.Actions.Add(action);
                     }
                     break;
                 case PacketType.ShipSunk:

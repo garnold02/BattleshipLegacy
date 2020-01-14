@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BattleshipClient.Game
 {
-    enum StrategyOption
+    enum ActionType
     {
         Regular,
         Big,

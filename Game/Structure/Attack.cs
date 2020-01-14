@@ -2,21 +2,21 @@
 
 namespace BattleshipClient.Game.Structure
 {
-    struct Attack
+    struct StrategyAction
     {
-        public List<Player> Owners { get; }
-        public List<StrategyOption> Types { get; }
+        public Player Owner { get; }
+        public ActionType Type { get; }
         public int DestinationX { get; }
         public int DestinationY { get; }
         public bool IsHit { get; }
 
-        public Attack(List<Player> owners, List<StrategyOption> types, int destX, int destY, bool isHit)
+        public StrategyAction(byte x, byte y, bool hit, Player owner, ActionType type)
         {
-            Types = types;
-            Owners = owners;
-            DestinationX = destX;
-            DestinationY = destY;
-            IsHit = isHit;
+            Owner = owner;
+            Type = type;
+            DestinationX = x;
+            DestinationY = y;
+            IsHit = hit;
         }
     }
 }

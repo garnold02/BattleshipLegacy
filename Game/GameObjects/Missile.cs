@@ -25,7 +25,6 @@ namespace BattleshipClient.Game.GameObjects
         public Player Owner { get; }
         public Vector2 Origin { get; }
         public Vector2 Destination { get; }
-        public bool IsColliding { get; }
         private float Height => 100 / tileDistance * heightModifier;
 
         private Vector2 renderOrigin;
@@ -38,12 +37,11 @@ namespace BattleshipClient.Game.GameObjects
 
         private float time;
 
-        public Missile(GameContainer container, Player owner, Vector2 origin, Vector2 destination, bool isColliding) : base(container)
+        public Missile(GameContainer container, Player owner, Vector2 origin, Vector2 destination) : base(container)
         {
             Owner = owner;
             Origin = origin;
             Destination = destination;
-            IsColliding = isColliding;
 
             float wsX = Owner.BoardClaim.PositionX * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;
             float wsY = Owner.BoardClaim.PositionY * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;

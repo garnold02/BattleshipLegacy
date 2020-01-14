@@ -14,6 +14,7 @@ namespace BattleshipClient.Game.RegularObjects
         public TurnPhase Phase { get; private set; } = TurnPhase.Neutral;
         public DateTime PhaseDeadline { get; private set; } = DateTime.Now;
         public bool CanPlaceShips { get; private set; } = false;
+        public bool IsMenuEnabled { get; private set; } = false;
 
         public List<Missile> activeMissiles;
         private bool sentCSF = false;
@@ -87,6 +88,16 @@ namespace BattleshipClient.Game.RegularObjects
             Container.CursorCtrl.ShipLength = 0;
             CanPlaceShips = false;
         }
+        public void BuyStategicOption(ActionType option)
+        {
+            Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)option));
+            Container.NetCom.SendPacket(packet);
+        }
+        public void Ready()
+        {
+            Packet packet = new Packet(PacketType.ReadyRequest);
+            Container.NetCom.SendPacket(packet);
+        }
 
         private void LandClaimingLogic()
         {
@@ -112,19 +123,23 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void StrategyLogic()
         {
-            if (Input.IsMouseButtonPressed(MouseButton.Left))
+            if (Input.IsMouseButtonPressed(MouseButton.Left) && !Container.TurnManager.IsMenuEnabled)
             {
-                Packet packet = new Packet(PacketType.AttackRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y));
+                Packet packet = new Packet(PacketType.AttackRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk(0));
                 Container.NetCom.SendPacket(packet);
+            }
+            if (Input.IsKeyPressed(Key.E))
+            {
+                IsMenuEnabled = !IsMenuEnabled;
             }
             if (Input.IsKeyPressed(Key.Number1))
             {
-                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)StrategyOption.Regular));
+                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)ActionType.Regular));
                 Container.NetCom.SendPacket(packet);
             }
             if (Input.IsKeyPressed(Key.Number2))
             {
-                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)StrategyOption.Big));
+                Packet packet = new Packet(PacketType.PurchaseRequest, new ByteChunk((byte)ActionType.Big));
                 Container.NetCom.SendPacket(packet);
             }
         }
@@ -133,7 +148,7 @@ namespace BattleshipClient.Game.RegularObjects
             if (activeMissiles.Count == 0 && !sentCSF)
             {
                 Container.NetCom.SendPacket(new Packet(PacketType.CutsceneFinished));
-                Container.Board.Attacks.Clear();
+                Container.Board.Actions.Clear();
 
                 sentCSF = true;
             }

@@ -27,7 +27,7 @@ namespace BattleshipClient.Game.Structure
             Ships.Add(ship);
             Renderer.CreateShipRenderer(ship);
         }
-        public void AddAttackIndicator(Attack attack)
+        public void AddAttackIndicator(StrategyAction attack)
         {
             Renderer.CreateAttackRenderer(attack);
         }

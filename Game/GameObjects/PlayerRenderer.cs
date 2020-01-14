@@ -40,13 +40,12 @@ namespace BattleshipClient.Game.GameObjects
             ship.Renderer = shipRenderer;
             shipRenderer.SetProperties(ship);
         }
-        public void CreateAttackRenderer(Attack attack)
+        public void CreateAttackRenderer(StrategyAction attack)
         {
             MeshRenderer attackRenderer = new MeshRenderer(Assets.Get<Mesh>("plane"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {
-                    Opaque = false,
                     Texture = Assets.Get<Texture>("attackIndicator"),
                     Color = new Color4(1f, 1f, 1f, 0.5f)
                 }

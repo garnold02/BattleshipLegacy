@@ -29,7 +29,10 @@ namespace BattleshipClient.Game.GameObjects
 
         public override void Render()
         {
-            currentRenderer?.Render();
+            if (!Container.TurnManager.IsMenuEnabled)
+            {
+                currentRenderer?.Render();
+            }
         }
 
         public override void Update(float delta)

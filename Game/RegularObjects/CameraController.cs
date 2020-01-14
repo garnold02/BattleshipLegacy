@@ -35,7 +35,7 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void PanHandler()
         {
-            if (Input.IsMouseButtonPressed(MouseButton.Right))
+            if (Input.IsMouseButtonPressed(MouseButton.Right) && !Container.TurnManager.IsMenuEnabled)
             {
                 Vector2 positionOnPlane = Utility.GetMousePositionOnXZPlane(Container);
                 TargetPosition = new Vector3(positionOnPlane.X, 0, positionOnPlane.Y);
