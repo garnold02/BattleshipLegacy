@@ -55,7 +55,7 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (!subpools.ContainsKey(textureName))
             {
-                subpools.Add(textureName, new ParticleSubpool(this, textureName, 65536));
+                subpools.Add(textureName, new ParticleSubpool(this, textureName, 16384));
             }
             return subpools[textureName];
         }

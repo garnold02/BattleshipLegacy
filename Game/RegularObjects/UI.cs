@@ -137,21 +137,25 @@ namespace BattleshipClient.Game.RegularObjects
                     case 0:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Repair);
+                            desiredUpperPosition = new Vector2(0, 0.2f);
                         }
                         break;
                     case 1:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Big);
+                            desiredRightPosition = new Vector2(0.2f, 0);
                         }
                         break;
                     case 2:
                         {
                             Container.TurnManager.Ready();
+                            desiredUpperPosition = new Vector2(0, -0.2f);
                         }
                         break;
                     case 3:
                         {
                             Container.TurnManager.BuyStategicOption(ActionType.Regular);
+                            desiredRightPosition = new Vector2(-0.2f, 0);
                         }
                         break;
                 }

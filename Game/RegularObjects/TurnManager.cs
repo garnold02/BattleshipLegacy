@@ -179,6 +179,8 @@ namespace BattleshipClient.Game.RegularObjects
                 player.ClearAttackIndicators();
             }
             Container.Board.CreateMissiles();
+
+            IsMenuEnabled = false;
         }
         private void SetCooldownText()
         {

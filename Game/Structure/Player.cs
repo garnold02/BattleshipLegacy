@@ -12,6 +12,7 @@ namespace BattleshipClient.Game.Structure
         public Board Board { get; }
         public BoardPiece BoardClaim { get; set; }
         public List<Ship> Ships { get; }
+        public List<ActionType> Actions { get; }
 
         public PlayerRenderer Renderer { get; set; }
         public Player(Board board, string name, byte id)
@@ -21,6 +22,7 @@ namespace BattleshipClient.Game.Structure
             Board = board;
 
             Ships = new List<Ship>();
+            Actions = new List<ActionType>();
         }
         public void AddShip(Ship ship)
         {

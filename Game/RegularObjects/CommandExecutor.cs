@@ -80,7 +80,8 @@ namespace BattleshipClient.Game.RegularObjects
                     break;
                 case PacketType.PurchaseRequestAccepted:
                     {
-
+                        ActionType action = (ActionType)(chunks[0] as ByteChunk).Data;
+                        Container.Board.LocalPlayer.Actions.Add(action);
                     }
                     break;
                 case PacketType.PurchaseRequestDenied:
