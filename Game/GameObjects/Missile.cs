@@ -1,4 +1,5 @@
 ﻿using BattleshipClient.Engine;
+using BattleshipClient.Engine.Net;
 using BattleshipClient.Engine.Rendering;
 using BattleshipClient.Game.Structure;
 using OpenTK;
@@ -23,9 +24,10 @@ namespace BattleshipClient.Game.GameObjects
         #endregion
 
         public Player Owner { get; }
+        public ActionType MissileType { get; }
         public Vector2 Origin { get; }
         public Vector2 Destination { get; }
-        public bool IsHit { get; }
+        public bool[,] HitMatrix { get; }
         private float Height => 100 / tileDistance * heightModifier;
 
         private Vector2 renderOrigin;
@@ -38,12 +40,13 @@ namespace BattleshipClient.Game.GameObjects
 
         private float time;
 
-        public Missile(GameContainer container, Player owner, Vector2 origin, Vector2 destination, bool isHit) : base(container)
+        public Missile(GameContainer container, Player owner, ActionType missileType, Vector2 origin, Vector2 destination, bool[,] hitMatrix) : base(container)
         {
             Owner = owner;
+            MissileType = missileType;
             Origin = origin;
             Destination = destination;
-            IsHit = isHit;
+            HitMatrix = hitMatrix;
 
             float wsX = Owner.BoardClaim.PositionX * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;
             float wsY = Owner.BoardClaim.PositionY * Container.Board.PieceLength + Container.Board.PieceLength / 2 - Container.Board.FullSideLength / 2;
@@ -57,12 +60,15 @@ namespace BattleshipClient.Game.GameObjects
 
             Transform.localPosition = new Vector3(Origin.X, 0, Origin.Y);
             Transform.localRotation = Utility.LookAt(Transform.localPosition, new Vector3(Origin.X, 1, Origin.Y));
-            meshRenderer = new MeshRenderer(Assets.Get<Mesh>("small_missile"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+
+            string meshName = MissileType == ActionType.Regular ? "small_missile" : "icbm";
+            string texName = MissileType == ActionType.Regular ? "smallMissile" : "missileTex";
+            meshRenderer = new MeshRenderer(Assets.Get<Mesh>(meshName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Transform = Transform,
                 Material = new Material()
                 {
-                    Texture = Assets.Get<Texture>("smallMissile")
+                    Texture = Assets.Get<Texture>(texName)
                 }
             };
 
@@ -124,22 +130,35 @@ namespace BattleshipClient.Game.GameObjects
             {
                 Container.ObjManager.Remove(this);
                 Container.ObjManager.Remove(particleSystem);
-                if (IsHit)
+
+                int squareLength = MissileType == ActionType.Regular ? 1 : 3;
+                for (int i = 0; i < squareLength; i++)
                 {
-                    int px = (int)Destination.X / Container.Board.PieceLength;
-                    int py = (int)Destination.Y / Container.Board.PieceLength;
-                    int rx = (int)Destination.X % Container.Board.PieceLength;
-                    int ry = (int)Destination.Y % Container.Board.PieceLength;
-
-                    BoardPiece piece = Container.Board.Pieces[px, py];
-                    Cell cell = piece.Cells[rx, ry];
-                    cell.IsHit = true;
-                    if (cell.HasShip)
+                    for (int j = 0; j < squareLength; j++)
                     {
-                        Explosion explosion = new Explosion(Container, new Vector3(renderDestination.X, 0.5f, renderDestination.Y));
-                        Container.ObjManager.Add(explosion);
+                        int px = (int)(Destination.X + i) / Container.Board.PieceLength;
+                        int py = (int)(Destination.Y + j) / Container.Board.PieceLength;
+                        int rx = (int)(Destination.X + i) % Container.Board.PieceLength;
+                        int ry = (int)(Destination.Y + j) % Container.Board.PieceLength;
 
-                        cell.Ship.Renderer.SetProperties(cell.Ship);
+                        BoardPiece piece = Container.Board.Pieces[px, py];
+                        Cell cell = piece.Cells[rx, ry];
+                        cell.IsHit = true;
+                        if (HitMatrix[j, i])
+                        {
+                            Explosion explosion = new Explosion(Container, new Vector3(renderDestination.X + i, 0.5f, renderDestination.Y + j));
+                            Container.ObjManager.Add(explosion);
+
+                            Container.Board.Renderer.SetSmoke((int)Destination.X + i, (int)Destination.Y + j, true);
+
+                            if (piece.Owner == Container.Board.LocalPlayer && cell.HasShip)
+                            {
+                                cell.Ship.Renderer.SetProperties(cell.Ship);
+                            }
+
+                            Packet packet = new Packet(PacketType.ShipSunkRequest, new ByteChunk((byte)(Destination.X + i)), new ByteChunk((byte)(Destination.Y + j)), new ByteChunk((byte)MissileType));
+                            Container.NetCom.SendPacket(packet);
+                        }
                     }
                 }
             }

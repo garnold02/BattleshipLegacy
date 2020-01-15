@@ -1,4 +1,5 @@
 ﻿using BattleshipClient.Engine.Rendering;
+using OpenTK;
 
 namespace BattleshipClient.Game.Structure
 {
@@ -12,7 +13,6 @@ namespace BattleshipClient.Game.Structure
 
         public Player Owner { get; }
         public Cell[] Cells { get; }
-
         public ShipRenderer Renderer { get; set; }
 
         public Ship(Player owner, int positionX, int positionY, int length, bool isVertical)

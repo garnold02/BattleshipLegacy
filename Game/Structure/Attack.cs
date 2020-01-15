@@ -8,15 +8,15 @@ namespace BattleshipClient.Game.Structure
         public ActionType Type { get; }
         public int DestinationX { get; }
         public int DestinationY { get; }
-        public bool IsHit { get; }
+        public bool[,] HitMatrix { get; }
 
-        public StrategyAction(byte x, byte y, bool hit, Player owner, ActionType type)
+        public StrategyAction(byte x, byte y, bool[,] hitMatrix, Player owner, ActionType type)
         {
             Owner = owner;
             Type = type;
             DestinationX = x;
             DestinationY = y;
-            IsHit = hit;
+            HitMatrix = hitMatrix;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BattleshipClient.Engine.Net;
 using BattleshipClient.Game.Structure;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 
@@ -81,7 +82,7 @@ namespace BattleshipClient.Game.RegularObjects
                 case PacketType.PurchaseRequestAccepted:
                     {
                         ActionType action = (ActionType)(chunks[0] as ByteChunk).Data;
-                        Container.Board.LocalPlayer.Actions.Add(action);
+                        Container.Board.LocalPlayer.Actions.Enqueue(action);
                     }
                     break;
                 case PacketType.PurchaseRequestDenied:
@@ -93,8 +94,11 @@ namespace BattleshipClient.Game.RegularObjects
                     {
                         byte x = (chunks[0] as ByteChunk).Data;
                         byte y = (chunks[1] as ByteChunk).Data;
-                        StrategyAction attack = new StrategyAction(x, y, false, null, ActionType.Regular);
-                        Container.Board.LocalPlayer.AddAttackIndicator(attack);
+                        ActionType actionType = (ActionType)(chunks[2] as ByteChunk).Data;
+
+                        StrategyAction action = new StrategyAction(x, y, new bool[3, 3], null, actionType);
+                        Container.Board.LocalPlayer.AddActionIndicator(action);
+                        Container.Board.LocalPlayer.Actions.Dequeue();
                     }
                     break;
                 case PacketType.ActionRequestDenied:
@@ -122,26 +126,64 @@ namespace BattleshipClient.Game.RegularObjects
                         {
                             Container.Board.Renderer.SetClaimPosition(x, y);
                         }
+                        Container.Board.Renderer.SetClaimMapTexture(Container.Board.CreateClaimBitmap(true));
                     }
                     break;
                 case PacketType.ActionBroadcast:
                     {
-                        List<Player> players = new List<Player>();
-                        List<ActionType> playerAttackTypes = new List<ActionType>();
-
                         byte x = (chunks[0] as ByteChunk).Data;
                         byte y = (chunks[1] as ByteChunk).Data;
-                        bool hit = (chunks[2] as BoolChunk).Data;
-                        ActionType actionType = (ActionType)(chunks[3] as ByteChunk).Data;
-                        byte id = (chunks[4] as ByteChunk).Data;
+                        byte hitm1 = (chunks[2] as ByteChunk).Data;
+                        byte hitm2 = (chunks[3] as ByteChunk).Data;
+                        ActionType actionType = (ActionType)(chunks[4] as ByteChunk).Data;
+                        byte id = (chunks[5] as ByteChunk).Data;
+
+                        bool[,] matrix = new bool[3, 3]
+                        {
+                            {
+                                ((hitm1>>0)&1)==1,
+                                ((hitm1>>1)&1)==1,
+                                ((hitm1>>2)&1)==1
+                            },
+                            {
+                                ((hitm1>>3)&1)==1,
+                                ((hitm1>>4)&1)==1,
+                                ((hitm1>>5)&1)==1
+                            },
+                            {
+                                ((hitm1>>6)&1)==1,
+                                ((hitm1>>7)&1)==1,
+                                ((hitm2>>0)&1)==1,
+                            }
+                        };
 
                         Player player = Container.Board.GetPlayerByID(id);
 
-                        StrategyAction action = new StrategyAction(x, y, hit, player, actionType);
+                        StrategyAction action = new StrategyAction(x, y, matrix, player, actionType);
                         Container.Board.Actions.Add(action);
                     }
                     break;
                 case PacketType.ShipSunk:
+                    {
+                        byte x = (chunks[0] as ByteChunk).Data;
+                        byte y = (chunks[1] as ByteChunk).Data;
+                        byte length = (chunks[2] as ByteChunk).Data;
+                        bool isVertical = (chunks[3] as BoolChunk).Data;
+
+                        BoardPiece piece = Container.Board.Pieces[x / Container.Board.PieceLength, y / Container.Board.PieceLength];
+                        if (piece.Owner == Container.Board.LocalPlayer)
+                        {
+                            int rx = x % Container.Board.PieceLength;
+                            int ry = y % Container.Board.PieceLength;
+                            Ship ship = piece.Cells[rx, ry].Ship;
+                            piece.Owner.RemoveShip(ship);
+                            Container.Board.Renderer.AddSunkShip(ship);
+                        }
+                        else
+                        {
+                            Container.Board.Renderer.AddSunkShip(new Ship(piece.Owner, x, y, length, isVertical));
+                        }
+                    }
                     break;
                 case PacketType.Score:
                     {

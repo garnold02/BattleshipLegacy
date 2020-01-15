@@ -26,6 +26,7 @@
         PlayerList,
         LandBroadcast,
         ActionBroadcast,
+        ShipSunkRequest,
         ShipSunk,
         CutsceneFinished,
         Score,

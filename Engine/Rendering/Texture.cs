@@ -9,6 +9,27 @@ namespace BattleshipClient.Engine.Rendering
     public class Texture
     {
         #region Static
+        public static Texture Load(Bitmap bitmap, TextureFilteringMode filteringMode = TextureFilteringMode.Nearest)
+        {
+            Texture texture = new Texture()
+            {
+                Width = bitmap.Width,
+                Height = bitmap.Height,
+                Path = "",
+                Filtering = filteringMode
+            };
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            bitmap.UnlockBits(data);
+
+            texture.glTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texture.glTexture);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)filteringMode);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)filteringMode);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bitmap.Width, bitmap.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            return texture;
+        }
         public static Texture Load(string path, TextureFilteringMode filteringMode = TextureFilteringMode.Nearest)
         {
             Bitmap bitmap = new Bitmap(path);
@@ -39,6 +60,19 @@ namespace BattleshipClient.Engine.Rendering
         public TextureFilteringMode Filtering { get; private set; }
 
         internal int glTexture;
+
+        public void Update(Bitmap bitmap)
+        {
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            bitmap.UnlockBits(data);
+
+            GL.BindTexture(TextureTarget.Texture2D, glTexture);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)Filtering);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)Filtering);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bitmap.Width, bitmap.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
     }
 
     public enum TextureFilteringMode

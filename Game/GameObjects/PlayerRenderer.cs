@@ -1,4 +1,5 @@
-﻿using BattleshipClient.Engine.Rendering;
+﻿using BattleshipClient.Engine;
+using BattleshipClient.Engine.Rendering;
 using BattleshipClient.Game.Structure;
 using OpenTK;
 using OpenTK.Graphics;
@@ -12,11 +13,13 @@ namespace BattleshipClient.Game.GameObjects
         public Player Player { get; }
 
         public readonly List<MeshRenderer> attackRenderers;
+        private readonly ParticleSystem[,] smokeParticles;
 
         public PlayerRenderer(GameContainer container, Player player) : base(container)
         {
             Player = player;
             attackRenderers = new List<MeshRenderer>();
+            smokeParticles = new ParticleSystem[Container.Board.PieceLength, Container.Board.PieceLength];
         }
         public override void OnAdded()
         {
@@ -29,7 +32,7 @@ namespace BattleshipClient.Game.GameObjects
         public override void Render()
         {
             RenderShips();
-            RenderAttacks();
+            RenderAttackIndicators();
         }
         public override void Update(float delta)
         {
@@ -40,25 +43,39 @@ namespace BattleshipClient.Game.GameObjects
             ship.Renderer = shipRenderer;
             shipRenderer.SetProperties(ship);
         }
-        public void CreateAttackRenderer(StrategyAction attack)
+        public void CreateActionRenderer(StrategyAction attack)
         {
-            MeshRenderer attackRenderer = new MeshRenderer(Assets.Get<Mesh>("plane"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+            string meshName = "";
+            string texName = "";
+            switch (attack.Type)
+            {
+                case ActionType.Regular:
+                    meshName = "small_missile";
+                    texName = "smallMissile";
+                    break;
+                case ActionType.Big:
+                    meshName = "icbm";
+                    texName = "missileTex";
+                    break;
+                case ActionType.Repair:
+                    meshName = "wrench";
+                    texName = "wrenchTex";
+                    break;
+            }
+
+            MeshRenderer actionRenderer = new MeshRenderer(Assets.Get<Mesh>(meshName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
             {
                 Material = new Material()
                 {
-                    Texture = Assets.Get<Texture>("attackIndicator"),
-                    Color = new Color4(1f, 1f, 1f, 0.5f)
+                    Texture = Assets.Get<Texture>(texName),
+                },
+                Transform = new Transform()
+                {
+                    localRotation = Quaternion.FromEulerAngles(-MathHelper.PiOver2, 0, 0),
                 }
             };
-            attackRenderer.Transform.localPosition = new Vector3(attack.DestinationX - Container.Board.FullSideLength / 2 + 0.5f, 0.03f, attack.DestinationY - Container.Board.FullSideLength / 2 + 0.5f);
-            attackRenderers.Add(attackRenderer);
-        }
-        public void Refresh()
-        {
-            foreach (Ship ship in Player.Ships)
-            {
-                ship.Renderer.SetProperties(ship);
-            }
+            actionRenderer.Transform.localPosition = new Vector3(attack.DestinationX - Container.Board.FullSideLength / 2 + 0.5f, 2, attack.DestinationY - Container.Board.FullSideLength / 2 + 0.5f);
+            attackRenderers.Add(actionRenderer);
         }
         private void RenderShips()
         {
@@ -67,7 +84,7 @@ namespace BattleshipClient.Game.GameObjects
                 ship.Renderer.Render();
             }
         }
-        private void RenderAttacks()
+        private void RenderAttackIndicators()
         {
             foreach (MeshRenderer attackRenderer in attackRenderers)
             {

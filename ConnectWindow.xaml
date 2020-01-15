@@ -23,7 +23,7 @@
         <Label Grid.Row="2" Content="IP-cím:" VerticalAlignment="Top" Margin="10 5 5 5"/>
         <Label Grid.Row="2" Grid.Column="2" Content="Port:" VerticalAlignment="Top" Margin="5 5 10 5"/>
         <TextBox Name="TbxName" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="10 5 10 5" Height="30" VerticalContentAlignment="Center" Text="player"/>
-        <TextBox Name="TbxHostname" Grid.Row="2" VerticalAlignment="Bottom" Margin="10 5 10 5" Height="30" VerticalContentAlignment="Center" Text="127.0.0.1"/>
+        <TextBox Name="TbxHostname" Grid.Row="2" VerticalAlignment="Bottom" Margin="10 5 5 5" Height="30" VerticalContentAlignment="Center" Text="46.139.132.27"/>
         <TextBox Name="TbxPort" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" Margin="5 5 10 5" Height="30" VerticalContentAlignment="Center" Text="5555"/>
         <Button Name="BtnConnect" Grid.Row="4" Grid.ColumnSpan="2" Margin="10 5 10 10" Content="Csatlakozás" Click="BtnConnect_Click"/>
     </Grid>

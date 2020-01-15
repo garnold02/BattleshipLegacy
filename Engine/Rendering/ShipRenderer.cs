@@ -1,4 +1,5 @@
-﻿using BattleshipClient.Game;
+﻿using System;
+using BattleshipClient.Game;
 using BattleshipClient.Game.Structure;
 using OpenTK;
 
@@ -29,11 +30,10 @@ namespace BattleshipClient.Engine.Rendering
         }
         public void SetProperties(int positionX, int positionY, int length, bool isVertical, bool[] hitValues)
         {
-            Position = new Vector3(positionX - Board.FullSideLength / 2, length == 1 ? 0 : -0.5f, positionY - Board.FullSideLength / 2);
+            Position = new Vector3(positionX - Board.FullSideLength / 2, Position.Y, positionY - Board.FullSideLength / 2);
             Length = length;
             IsVertical = isVertical;
             HitValues = hitValues;
-
             AdjustRenderers();
         }
         public override void Render()
@@ -51,17 +51,23 @@ namespace BattleshipClient.Engine.Rendering
                 renderer.Delete();
             }
         }
+        public void SetSunk()
+        {
+            Position = new Vector3(Position.X, Length > 1 ? -2 : 0, Position.Z);
+        }
 
         private void AdjustRenderers()
         {
             renderers = new MeshRenderer[Length];
             if (Length == 1)
             {
-                MeshRenderer r = new MeshRenderer(Assets.Get<Mesh>("oil_rig"), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
+                string modelName = HitValues[0] ? "oil_rig_ruined" : "oil_rig";
+                string textureName = HitValues[0] ? "oilRigRuined" : "oilRig";
+                MeshRenderer r = new MeshRenderer(Assets.Get<Mesh>(modelName), Assets.Get<Shader>("v_neutral"), Assets.Get<Shader>("f_lit"))
                 {
                     Material = new Material()
                     {
-                        Texture = Assets.Get<Texture>("oilRig")
+                        Texture = Assets.Get<Texture>(textureName)
                     }
                 };
                 r.Transform.localRotation = Quaternion.FromEulerAngles(0, IsVertical ? MathHelper.Pi : -MathHelper.Pi / 2, 0);

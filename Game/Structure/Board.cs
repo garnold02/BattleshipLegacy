@@ -1,8 +1,10 @@
 ﻿using BattleshipClient.Engine.Net;
+using BattleshipClient.Engine.Rendering;
 using BattleshipClient.Game.GameObjects;
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace BattleshipClient.Game.Structure
 {
@@ -73,17 +75,54 @@ namespace BattleshipClient.Game.Structure
         {
             foreach (StrategyAction action in Actions)
             {
-                Player owner = action.Owner;
-                float startX = action.Owner.BoardClaim.PositionX;
-                float startY = action.Owner.BoardClaim.PositionY;
-                float destX = action.DestinationX;
-                float destY = action.DestinationY;
-                bool isHit = action.IsHit;
+                if (action.Type != ActionType.Repair)
+                {
+                    Player owner = action.Owner;
+                    float startX = action.Owner.BoardClaim.PositionX;
+                    float startY = action.Owner.BoardClaim.PositionY;
+                    float destX = action.DestinationX;
+                    float destY = action.DestinationY;
 
-                Missile missile = new Missile(Container, owner, new Vector2(startX, startY), new Vector2(destX, destY), isHit);
-                Container.ObjManager.Add(missile);
-                Container.TurnManager.activeMissiles.Add(missile);
+                    Missile missile = new Missile(Container, owner, action.Type, new Vector2(startX, startY), new Vector2(destX, destY), action.HitMatrix);
+                    Container.ObjManager.Add(missile);
+                    Container.TurnManager.activeMissiles.Add(missile);
+                }
             }
+        }
+        public Bitmap CreateClaimBitmap(bool claimState)
+        {
+            Bitmap bitmap = new Bitmap(SideLength, SideLength);
+            if (claimState)
+            {
+                for (int i = 0; i < SideLength; i++)
+                {
+                    for (int j = 0; j < SideLength; j++)
+                    {
+                        Color c = Color.Transparent;
+                        if (Pieces[i, j].Owner != null)
+                        {
+                            c = Color.Red;
+                        }
+                        bitmap.SetPixel(SideLength - i - 1, SideLength - j - 1, c);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < SideLength; i++)
+                {
+                    for (int j = 0; j < SideLength; j++)
+                    {
+                        Color c = Color.Black;
+                        if (Pieces[i, j].Owner != null)
+                        {
+                            c = Color.Transparent;
+                        }
+                        bitmap.SetPixel(SideLength - i - 1, SideLength - j - 1, c);
+                    }
+                }
+            }
+            return bitmap;
         }
     }
 }

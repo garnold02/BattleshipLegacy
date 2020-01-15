@@ -12,7 +12,7 @@ namespace BattleshipClient.Game.Structure
         public Board Board { get; }
         public BoardPiece BoardClaim { get; set; }
         public List<Ship> Ships { get; }
-        public List<ActionType> Actions { get; }
+        public Queue<ActionType> Actions { get; }
 
         public PlayerRenderer Renderer { get; set; }
         public Player(Board board, string name, byte id)
@@ -22,16 +22,24 @@ namespace BattleshipClient.Game.Structure
             Board = board;
 
             Ships = new List<Ship>();
-            Actions = new List<ActionType>();
+            Actions = new Queue<ActionType>();
         }
         public void AddShip(Ship ship)
         {
-            Ships.Add(ship);
             Renderer.CreateShipRenderer(ship);
+            Ships.Add(ship);
         }
-        public void AddAttackIndicator(StrategyAction attack)
+        public void RemoveShip(Ship ship)
         {
-            Renderer.CreateAttackRenderer(attack);
+            if(Ships.Contains(ship))
+            {
+                Ships.Remove(ship);
+                ship.Renderer.Delete();
+            }
+        }
+        public void AddActionIndicator(StrategyAction action)
+        {
+            Renderer.CreateActionRenderer(action);
         }
         public void ClearAttackIndicators()
         {

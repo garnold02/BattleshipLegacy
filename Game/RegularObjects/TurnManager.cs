@@ -14,7 +14,7 @@ namespace BattleshipClient.Game.RegularObjects
     class TurnManager : RegularObject
     {
         public TurnPhase Phase { get; private set; } = TurnPhase.Neutral;
-        public DateTime PhaseDeadline { get; private set; } = DateTime.Now;
+        public DateTime PhaseDeadline { get; private set; } = DateTime.UtcNow;
         public bool CanPlaceShips { get; private set; } = false;
         public bool IsMenuEnabled { get; private set; } = false;
 
@@ -50,7 +50,8 @@ namespace BattleshipClient.Game.RegularObjects
         }
         public void Advance(int timestamp)
         {
-            PhaseDeadline = new DateTime(DateTime.Now.Year, 1, 1) + TimeSpan.FromSeconds(timestamp);
+            PhaseDeadline = new DateTime(DateTime.UtcNow.Year, 1, 1) + TimeSpan.FromSeconds(timestamp);
+            Console.WriteLine(PhaseDeadline);
 
             switch (Phase)
             {
@@ -140,7 +141,7 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void NeutralLogic()
         {
-            if(Input.IsKeyPressed(Key.E))
+            if (Input.IsKeyPressed(Key.E))
             {
                 ToggleMenu();
             }
@@ -171,8 +172,12 @@ namespace BattleshipClient.Game.RegularObjects
         {
             if (Input.IsMouseButtonPressed(MouseButton.Left) && !Container.TurnManager.IsMenuEnabled)
             {
-                Packet packet = new Packet(PacketType.ActionRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk(0));
-                Container.NetCom.SendPacket(packet);
+                if (Container.Board.LocalPlayer.Actions.Count > 0)
+                {
+                    ActionType action = Container.Board.LocalPlayer.Actions.Peek();
+                    Packet packet = new Packet(PacketType.ActionRequest, new ByteChunk((byte)Container.CursorCtrl.Position.X), new ByteChunk((byte)Container.CursorCtrl.Position.Y), new ByteChunk((byte)action));
+                    Container.NetCom.SendPacket(packet);
+                }
             }
             if (Input.IsKeyPressed(Key.E))
             {
@@ -201,10 +206,12 @@ namespace BattleshipClient.Game.RegularObjects
         private void OnShipPlacementEntered()
         {
             Container.CameraCtrl.TargetZoom = 8;
+            Container.Board.Renderer.SetClaimMapTexture(Container.Board.CreateClaimBitmap(false));
         }
         private void OnStrategyEntered()
         {
             Container.CameraCtrl.TargetZoom = 10;
+            Container.Board.LocalPlayer.Actions.Clear();
         }
         private void OnCinematicsEntered()
         {
@@ -220,9 +227,9 @@ namespace BattleshipClient.Game.RegularObjects
         }
         private void SetCooldownText()
         {
-            if (PhaseDeadline > DateTime.Now)
+            if (PhaseDeadline > DateTime.UtcNow)
             {
-                TimeSpan timeSpan = (PhaseDeadline - DateTime.Now);
+                TimeSpan timeSpan = (PhaseDeadline - DateTime.UtcNow);
                 Container.UI.CooldownText.Text = timeSpan.ToString("mm\\:ss");
                 Container.UI.CooldownText.Color = timeSpan.TotalSeconds > 10 ? Color4.White : Color4.Red;
             }
